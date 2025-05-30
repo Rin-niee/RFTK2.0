@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+        <meta charset="UTF-8">
+    <title>Контрагенты</title>
+    {% load static %}
+</head>
+<body>
+    {% include 'header.html' %}
+<form method="post">
+        {% csrf_token %}
+    <h1>Информация о организации</h1>
+        {{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}
+        {{formO.org_name.label_tag}} {{ formO.org_name }}
+        {{formO.all_name.label_tag}} {{ formO.all_name }}
+        {{formO.INN_number.label_tag}} {{ formO.INN_number }}
+        {{formO.OKPO_code.label_tag}} {{ formO.OKPO_code }}
+        {{formO.OKVED.label_tag}} {{ formO.OKVED }}
+        {{formO.org_adress.label_tag}} {{ formO.org_adress }}
+        {{formO.OGRN.label_tag}} {{ formO.OGRN }}
+        <div id="kpp-field">
+            {{formO.KPP.label_tag}} {{ formO.KPP }}
+        </div>
+
+    <h1>Банковские реквизиты</h1>
+        <div id="bank-forms">
+            {{ bformset.management_form }}
+            {{ obformset.management_form }}
+
+            {% for form_b, form_ob in bank_pairs %}
+            <div class="bank-form">
+                {{ form_b.as_p }}
+                {{ form_ob.as_p }}
+            </div>
+            {% endfor %}
+        </div>
+
+    <button type="button" id="add-bank">+ Добавить расчетный счет</button>
+    <h1>Должностные лица</h1>
+        {{formD.position_boss.label_tag}} {{ formD.position_boss }}
+        {{formD.name_boss.label_tag}} {{ formD.name_boss }}
+        {{formD.name_buh.label_tag}} {{ formD.name_buh }}
+        {{formD.name_kass.label_tag}} {{ formD.name_kass }}
+
+    <h1>Контактная информация</h1>
+        {{formC.phone.label_tag}} {{ formC.phone }}
+        {{formC.fax.label_tag}} {{ formC.fax }}
+        {{formC.email.label_tag}} {{ formC.email }}
+        {{formC.vebsite.label_tag}} {{ formC.vebsite }}
+        
+    <h1> НДС</h1>
+        {{ formN.nds_stavka }}
+        {{ formN.nds_status }}
+    <h1>Настройки для частных лиц</h1>
+        {{ formP.priv_name.label_tag}} {{ formP.priv_name }}
+        {{ formP.priv_adress.label_tag}} {{ formP.priv_adress }}
+        {{ formP.passport.label_tag}} {{ formP.passport }}
+        {{ formP.Who_gave.label_tag}} {{ formP.Who_gave }}
+        {{ formP.DATE_gave.label_tag}} {{ formP.DATE_gave }}
+        {{ formOrg.management_form }}
+    {% for hidden in formOrg.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+        <button type="submit">Сохранить</button>
+</form>
+
+    <script src="{% static 'js/IPKPP.js' %}"></script>
+    <script src="{% static 'js/clone.js' %}"></script>
+</body>
+</html>

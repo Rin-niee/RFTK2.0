@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Index</title>
+</head>
+<body>
+    {% include 'header.html' %}
+    <h1>Welcome to the Account Index Page, {{ user.email|default:"Нет email" }} </h1>
+    <p>This is a placeholder for your account index content.</p>
+    <p>
+        <a href="{% url 'register' %}">Register</a> | 
+        <a href="{% url 'login' %}">Login</a>
+    </p>
+</body>
+</html>
