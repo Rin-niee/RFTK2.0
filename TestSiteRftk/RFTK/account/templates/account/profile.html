@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+<body>
+    {% include 'header.html' %}
+    <a href = "{% url 'org' %}"> Мои организации</a>
+    <a href = "{% url 'clients' %}"> Мои контрагенты</a>
+</body>
+</html>

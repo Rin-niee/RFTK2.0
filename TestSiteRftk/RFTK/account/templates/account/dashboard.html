@@ -1,0 +1,9 @@
+   {% include 'header.html' %}
+<h2>Добро пожаловать, {{ user.username }}</h2>
+<h3>Мои организации:</h3>
+<ul>
+  {% for org in orgs %}
+    <li><a href = "{% url 'orgid' org.id %}">{{ org.id }}</a></li>
+  {% endfor %}
+  <a href = "{% url 'orgadd' %}">Добавить организацию</a>
+</ul>
