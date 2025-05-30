@@ -65,7 +65,7 @@ class Counterparty(models.Model):
         ('org', 'Organization'),
         ('ind', 'Individual'),
     ]
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='org')
     USL_name = models.CharField(max_length=255, blank=True, null=True)  # дополнительное поле
 
 #основной класс организации

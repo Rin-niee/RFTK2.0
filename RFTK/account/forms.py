@@ -87,6 +87,7 @@ class NDS_Form(forms.ModelForm):
             'nds_stavka': '',
             'nds_status': '',
         }
+
 class Privite_Form(forms.ModelForm):
     class Meta:
         model = Privite_face
@@ -157,26 +158,18 @@ class organization_bankForm(forms.ModelForm):
     
 #Общий класс для контрагентов
 class CounterpartyForm(forms.ModelForm):
+    TYPE_CHOICES = [
+        ('org', 'Organization'),
+        ('ind', 'Individual'),
+    ]
+    type = forms.ChoiceField(
+        choices=TYPE_CHOICES,
+        widget=forms.RadioSelect(),
+        initial=0 
+    )
     class Meta:
         model = Counterparty
-        fields = ['USL_name']
-    def __init__(self, *args, **kwargs):
-        
-        self.info = kwargs.pop('info', None)
-        self.privite = kwargs.pop('privite', None)
-        self.contacts = kwargs.pop('contacts', None)
-        self.employers = kwargs.pop('employers', None)
-        super().__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.ID_information = self.info
-        instance.ID_privite = self.privite
-        instance.ID_contacts = self.contacts
-        instance.ID_employers = self.employers
-        if commit:
-            instance.save()
-        return instance
+        fields = ['type', 'USL_name']
 
 class Counterparty_bankForm(forms.ModelForm):
     class Meta:
