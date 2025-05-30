@@ -18,7 +18,6 @@ class CheckForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.org_info = self.org_info
         instance.ID_consignee = self.ID_consignee
-        instance.contacts = self.contacts
         instance.more_info = self.more_info
         if commit:
             instance.save()
@@ -89,19 +88,19 @@ class CheckForGoodsForm(forms.ModelForm):
 
 #форма для грузоперевозчиков
 class ConsigneeForm(forms.ModelForm):
-    CONSIGNEE_CHOICES = [ # ставка НДС
+    CONSIGNEE_CHOICES = [
         (0, 'Покупатель является грузополучателем'),
         (1, 'Грузополучатель другая организация'),
     ]
     consignee_status = forms.ChoiceField(
     choices=CONSIGNEE_CHOICES, 
     widget=forms.RadioSelect(),
-    initial=1)
+    initial=0)
     class Meta:
         model = Consignee
         fields = ['consignee_status']
-        labels = {
-            'consignee_status': 'Грузополучатель',
+        labels={
+            'consignee_status': 'Наименование',
         }
     def __init__(self, *args, **kwargs):
         self.ID_Counterparty = kwargs.pop('ID_Counterparty', None)

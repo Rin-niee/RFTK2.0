@@ -155,21 +155,6 @@ class organization_bankForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
-    
-#Общий класс для контрагентов
-class CounterpartyForm(forms.ModelForm):
-    TYPE_CHOICES = [
-        ('org', 'Organization'),
-        ('ind', 'Individual'),
-    ]
-    type = forms.ChoiceField(
-        choices=TYPE_CHOICES,
-        widget=forms.RadioSelect(),
-        initial=0 
-    )
-    class Meta:
-        model = Counterparty
-        fields = ['type', 'USL_name']
 
 class Counterparty_bankForm(forms.ModelForm):
     class Meta:
@@ -222,12 +207,19 @@ class CounterpartyForm(forms.ModelForm):
     type = forms.ChoiceField(
         choices=TYPE_CHOICES,
         label="Статус",
-        widget=forms.RadioSelect(attrs={'class': 'form-select'})
+        widget=forms.RadioSelect(),
+        required=False
     )
 
     class Meta:
         model = Counterparty
         fields = ['type', 'USL_name']
-        labels={
+        labels = {
             'USL_name': 'Условное наименование организации',
         }
+
+    def clean_type(self):
+        data = self.cleaned_data.get('type')
+        if not data:
+            return 'org'
+        return data

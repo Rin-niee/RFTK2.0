@@ -1,15 +1,6 @@
 from django.db import models
 from account.models import *
 
-
-class Consignee(models.Model):
-    CONSIGNEE_CHOICES = [
-        (0, 'Покупатель является грузополучателем'),
-        (1, 'Грузополучатель другая организация'),
-    ]
-    consignee_status = models.IntegerField(choices=CONSIGNEE_CHOICES)
-    ID_Counterparty = models.ForeignKey('account.Counterparty', on_delete=models.CASCADE, blank=True, null=True)
-
 class Additionally(models.Model):
     ADDITIONALLY_CHOICES = [
     ('checkpech', 'Счет'),
@@ -44,6 +35,15 @@ class Additionally(models.Model):
 
     discount_fact = models.BooleanField(default=False)
     discount_size = models.IntegerField(blank=True, null=True)
+
+class Consignee(models.Model):
+    CONSIGNEE_CHOICES = [
+        (0, 'Покупатель является грузополучателем'),
+        (1, 'Грузополучатель другая организация'),
+    ]
+    consignee_status = models.IntegerField(choices=CONSIGNEE_CHOICES)
+    ID_Counterparty = models.ForeignKey('account.Counterparty', on_delete=models.CASCADE)
+
 
 class Check(models.Model):
     check_num= models.IntegerField(unique=True)

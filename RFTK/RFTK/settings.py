@@ -127,7 +127,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'account/static/',
-    # BASE_DIR / 'main/static/',
+    BASE_DIR / 'documents/static/',
 ]
 
 # Default primary key field type

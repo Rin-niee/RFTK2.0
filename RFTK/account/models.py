@@ -71,7 +71,7 @@ class Counterparty(models.Model):
 #основной класс организации
 class Organization(models.Model):
     ID_information = models.ForeignKey('Organization_info', on_delete=models.CASCADE)
-    ID_employers = models.ForeignKey('Employers', on_delete=models.CASCADE)
+    ID_employers = models.ForeignKey('Employers', on_delete=models.CASCADE, blank=True, null=True)
     ID_contacts = models.ForeignKey('Contacts', on_delete=models.CASCADE)
     ID_NDS = models.ForeignKey('NDS_info', on_delete=models.CASCADE, blank=True, null=True)
     ID_privite = models.ForeignKey('Privite_face', on_delete=models.CASCADE, blank=True, null=True)

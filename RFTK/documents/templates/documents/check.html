@@ -2,7 +2,7 @@
 <h2>Добро пожаловать, {{ user.username }}</h2>
 <h3>Мои счета:</h3>
 {% for check in checks %}
-    <li><a href="{% url 'clientsid' check.id %}">{{ check.id }}</a></li>
+    <li><a href="{% url 'checkid' check.id %}">{{ check.id }}</a></li>
 {% endfor %}
 
 <a href = "{% url 'checkadd' %}">Добавить счет</a>

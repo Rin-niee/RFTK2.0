@@ -12,6 +12,10 @@
         <p> Счет на оплату №{{form_check.check_num}} от {{form_check.check_date}}</p>
         <div>
             <h1>Информация об организации</h1>
+                <select id="counterparty-names">
+                    <option value="">-- Выбрать организацию --</option>
+                </select>
+                <script src="{% static 'js/autostateprg.js' %}"></script>
                 <p>{{form_org_info.org_name.label_tag}}{{form_org_info.org_name}}</p>
                 <p>{{form_org_info.INN_number.label_tag}}{{form_org_info.INN_number}}</p>
                 <p>{{form_org_info.KPP.label_tag}}{{form_org_info.KPP}}</p>
@@ -21,6 +25,7 @@
                 <p>{{form_org_DL.position_boss.label_tag}}{{form_org_DL.position_boss}}</p>
                 <p>{{form_org_DL.name_boss.label_tag}}{{form_org_DL.name_boss}}</p>
                 <p>{{form_org_DL.name_buh.label_tag}}{{form_org_DL.name_buh}}</p>
+                <p>{{form_counter.USL_name.label_tag}}{{form_counter.USL_name}}</p>
             <h1>Банковские реквизиты организации</h1>
                 <p>{{form_org_bank.bank_name.label_tag}}{{form_org_bank.bank_name}}</p>
                 <p>{{form_org_bank.bank_adress.label_tag}}{{form_org_bank.bank_adress}}</p>
@@ -29,7 +34,6 @@
         </div>
         <div>
             <h1>Покупатель</h1>
-            <p>{{form_counter.type.label_tag}}{{form_counter.type}}</p>
             <p>{{form_buy_info.org_name.label_tag}}{{form_buy_info.org_name}}</p>
             <p>{{form_buy_info.INN_number.label_tag}}{{form_buy_info.INN_number}}</p>
             <p>{{form_buy_info.KPP.label_tag}}{{form_buy_info.KPP}}</p>
@@ -44,7 +48,7 @@
         </div>
         <div>
             <h1>Грузополучатель</h1>
-            <p>{{form_consignee.consignee_status}}</p>
+            <p>{{form_consignee.consignee_status.label_tag}}{{form_consignee.consignee_status}}</p>
             <p>{{form_cons_info.org_name.label_tag}}{{form_cons_info.org_name}}</p>
             <p>{{form_cons_info.INN_number.label_tag}}{{form_cons_info.INN_number}}</p>
             <p>{{form_cons_info.KPP.label_tag}}{{form_cons_info.KPP}}</p>
