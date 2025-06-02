@@ -42,7 +42,7 @@ class Consignee(models.Model):
         (1, 'Грузополучатель другая организация'),
     ]
     consignee_status = models.IntegerField(choices=CONSIGNEE_CHOICES)
-    ID_Counterparty = models.ForeignKey('account.Counterparty', on_delete=models.CASCADE)
+    ID_Counterparty = models.ForeignKey('account.Counterparty', on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Check(models.Model):

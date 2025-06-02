@@ -3,7 +3,7 @@
 <h3>Мои организации:</h3>
 <ul>
   {% for org in orgs %}
-    <li><a href = "{% url 'orgid' org.id %}">{{ org.id }}</a></li>
+    <li><a href = "{% url 'orgid' org.id %}">{{ org.ID_information.org_name }}</a></li>
   {% endfor %}
   <a href = "{% url 'orgadd' %}">Добавить организацию</a>
 </ul>

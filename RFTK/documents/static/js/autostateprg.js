@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const nameSelect = document.getElementById('counterparty-names');
+    const nameSelect = document.getElementById('organizations-names');
 
-    // Загрузка всех организаций при загрузке страницы
-    fetch('/get_organizations/')
+    // Загружаем все организации при загрузке страницы
+    fetch(`get_organizations/`)
         .then(response => response.json())
         .then(data => {
             nameSelect.innerHTML = '<option value="">-- Выбрать организацию --</option>';
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedId = this.value;
         if (!selectedId) return;
 
-        fetch(`/get_counterparty_details/?id=${selectedId}`)
+        fetch(`get_organizations_details/?id=${selectedId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -30,32 +30,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                document.getElementById('id_IP_fact').checked = data.IP_fact;
-                document.getElementById('id_org_name').value = data.name;
-                document.getElementById('id_all_name').value = data.full_name;
+                document.getElementById('id_org_name').value = data.org_name;
                 document.getElementById('id_INN_number').value = data.INN;
-                document.getElementById('id_OKPO_code').value = data.OKPO_code;
-                document.getElementById('id_OKVED').value = data.OKVED;
-                document.getElementById('id_org_adress').value = data.org_adress;
-                document.getElementById('id_OGRN').value = data.OGRN;
                 document.getElementById('id_KPP').value = data.KPP;
-
-                document.getElementById('id_RS').value = data.bank_rs;
-                document.getElementById('id_bank_name').value = data.bank_name;
-                document.getElementById('id_bank_adress').value = data.bank_adress;
-                document.getElementById('id_KS').value = data.bank_ks;
+                document.getElementById('id_OGRN').value = data.OGRN;
 
                 document.getElementById('id_phone').value = data.phone;
                 document.getElementById('id_fax').value = data.fax;
-                document.getElementById('id_email').value = data.email;
-                document.getElementById('id_vebsite').value = data.vebsite;
 
                 document.getElementById('id_position_boss').value = data.position_boss;
                 document.getElementById('id_name_boss').value = data.name_boss;
                 document.getElementById('id_name_buh').value = data.name_buh;
-                document.getElementById('id_name_kass').value = data.name_kass;
-                // Если у тебя есть поле usl_name, то его тоже:
-                // document.getElementById('id_USL_name').value = data.usl_name || '';
+                document.getElementById('id_RS').value = data.bank_rs;
+                document.getElementById('id_bank_name').value = data.bank_name;
+                document.getElementById('id_bank_adress').value = data.bank_adress;
+                document.getElementById('id_KS').value = data.bank_ks;
             })
             .catch(err => {
                 console.error('Ошибка при получении деталей:', err);

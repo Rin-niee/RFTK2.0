@@ -10,14 +10,14 @@
 <form method="post">
         {% csrf_token %}
     <h1>Информация о организации</h1>
-        {{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}
-        {{formO.org_name.label_tag}} {{ formO.org_name }}
-        {{formO.all_name.label_tag}} {{ formO.all_name }}
-        {{formO.INN_number.label_tag}} {{ formO.INN_number }}
-        {{formO.OKPO_code.label_tag}} {{ formO.OKPO_code }}
-        {{formO.OKVED.label_tag}} {{ formO.OKVED }}
-        {{formO.org_adress.label_tag}} {{ formO.org_adress }}
-        {{formO.OGRN.label_tag}} {{ formO.OGRN }}
+        <p>{{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}</p>
+        <p>{{formO.org_name.label_tag}} {{ formO.org_name }}</p>
+        <p>{{formO.all_name.label_tag}} {{ formO.all_name }}</p>
+        <p>{{formO.INN_number.label_tag}} {{ formO.INN_number }}</p>
+        <p>{{formO.OKPO_code.label_tag}} {{ formO.OKPO_code }}</p>
+        <p>{{formO.OKVED.label_tag}} {{ formO.OKVED }}</p>
+        <p>{{formO.org_adress.label_tag}} {{ formO.org_adress }}</p>
+        <p>{{formO.OGRN.label_tag}} {{ formO.OGRN }}</p>
         <div id="kpp-field">
             {{formO.KPP.label_tag}} {{ formO.KPP }}
         </div>
@@ -37,27 +37,27 @@
 
     <button type="button" id="add-bank">+ Добавить расчетный счет</button>
     <h1>Должностные лица</h1>
-        {{formD.position_boss.label_tag}} {{ formD.position_boss }}
-        {{formD.name_boss.label_tag}} {{ formD.name_boss }}
-        {{formD.name_buh.label_tag}} {{ formD.name_buh }}
-        {{formD.name_kass.label_tag}} {{ formD.name_kass }}
+        <p>{{formD.position_boss.label_tag}} {{ formD.position_boss }}</p>
+        <p>{{formD.name_boss.label_tag}} {{ formD.name_boss }}</p>
+        <p>{{formD.name_buh.label_tag}} {{ formD.name_buh }}</p>
+        <p>{{formD.name_kass.label_tag}} {{ formD.name_kass }}</p>
 
     <h1>Контактная информация</h1>
-        {{formC.phone.label_tag}} {{ formC.phone }}
-        {{formC.fax.label_tag}} {{ formC.fax }}
-        {{formC.email.label_tag}} {{ formC.email }}
-        {{formC.vebsite.label_tag}} {{ formC.vebsite }}
+        <p>{{formC.phone.label_tag}}{{ formC.phone }}</p>
+        <p>{{formC.fax.label_tag}}{{ formC.fax }</p>}
+        <p>{{formC.email.label_tag}}{{ formC.email }}</p>
+        <p>{{formC.vebsite.label_tag}}{{ formC.vebsite }}</p>
         
     <h1> НДС</h1>
         {{ formN.nds_stavka }}
         {{ formN.nds_status }}
     <h1>Настройки для частных лиц</h1>
-        {{ formP.priv_name.label_tag}} {{ formP.priv_name }}
-        {{ formP.priv_adress.label_tag}} {{ formP.priv_adress }}
-        {{ formP.passport.label_tag}} {{ formP.passport }}
-        {{ formP.Who_gave.label_tag}} {{ formP.Who_gave }}
-        {{ formP.DATE_gave.label_tag}} {{ formP.DATE_gave }}
-        {{ formOrg.management_form }}
+        <p>{{ formP.priv_name.label_tag}} {{ formP.priv_name }}</p>
+        <p>{{ formP.priv_adress.label_tag}} {{ formP.priv_adress }}</p>
+        <p>{{ formP.passport.label_tag}} {{ formP.passport }}</p>
+        <p>{{ formP.Who_gave.label_tag}} {{ formP.Who_gave }}</p>
+        <p>{{ formP.DATE_gave.label_tag}} {{ formP.DATE_gave }}</p>
+        <p>{{ formOrg.management_form }}</p>
     {% for hidden in formOrg.hidden_fields %}
         {{ hidden }}
     {% endfor %}

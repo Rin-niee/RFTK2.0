@@ -14,6 +14,7 @@ urlpatterns = [
     path('clients/', login_required(clients), name='clients'),
     path('clients/add', login_required(clientsadd), name='clientsadd'),
     path('clients/<int:id>', login_required(clientsid), name='clientsid'),
+    
     path('clients/get_counterparties/', get_counterparties, name='get_counterparties'),
     path('clients/get_counterparty_details/', get_counterparty_details, name='get_counterparty_details'),
 ]

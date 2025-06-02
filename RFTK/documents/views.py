@@ -4,12 +4,35 @@ from account.models import *
 from account.forms import *
 from .models import *
 from .forms import *
+from django.forms import modelformset_factory
+from itertools import zip_longest
 
 def check(request):
     checks = Check.objects.filter(
         id__in=User_Check.objects.filter(user=request.user).values_list('check_info', flat=True)
     )
     return render(request, 'documents/check.html', {'checks': checks})
+
+# def checkadd(request):
+#     GoodsFormSet = modelformset_factory(Goods, form=GoodsForm, extra=1)
+
+#     if request.method == 'POST':
+#         gformset = GoodsFormSet(request.POST, prefix='gformset')
+
+#         if gformset.is_valid():
+#             goodsMany = gformset.save()
+#             for goodsM in goodsMany:
+#                 CheckForGoods.objects.create(ID_check=Check.objects.get(pk=2), ID_goods=goodsM)
+#             return redirect('check')
+
+#     else:
+#         gformset = GoodsFormSet(queryset=Goods.objects.none(), prefix='gformset')
+#     return render(request, 'documents/checkid.html', {
+#         'gformset': gformset,
+
+#     })
+
+GoodsFormSet = modelformset_factory(Goods, form=GoodsForm, extra=1)
 
 def checkadd(request):
     if request.method == 'POST':
@@ -36,29 +59,29 @@ def checkadd(request):
         
         # #информация об грузоперевозчике(все оформляется в контагента, если пусто)
         form_consignee = ConsigneeForm(request.POST)
-
         form_cons_info = Org_infoForm(request.POST, prefix="cons")
         form_cons_Con = ContactsForm(request.POST, prefix="cons")
         form_cons_org = OrganizationForm(request.POST, prefix="cons")
-
         form_cons_client = CounterpartyForm(request.POST, prefix="cons") #<-сюда
         
         #информация об дополнительном
         form_additionally = AdditionallyForm(request.POST)
         form_NDS = NDS_Form(request.POST)
-        #информация об товарах
-        form_goods = GoodsForm(request.POST)
-        #информация об связи товаров с чеками
-        checks_goods = CheckForGoodsForm(request.POST)
+        # #информация об товарах
+        # form_goods = GoodsForm(request.POST)
+
+        # #информация об связи товаров с чеками
+        # checks_goods = CheckForGoodsForm(request.POST)
+
+        #формсеты для товаров и связи товаров с чеком
+        gformset = GoodsFormSet(request.POST, prefix='gformset')
+
         all_forms = [
         form_check,
         form_org_info, form_org_DL, form_org_Con, form_NDS, form_org,
         form_org_bank, form_org_for_bank, 
         form_buy_info, form_buy_Con, form_org_counter, form_counter, form_buy_bank, form_buy_for_bank,
-        form_consignee, form_cons_info, form_cons_Con, form_cons_org, form_cons_client,
-        form_additionally, form_goods, 
-        checks_goods
-        ]
+        form_consignee, form_cons_client, form_additionally, gformset]
 
         if all(form.is_valid() for form in all_forms):
             
@@ -74,6 +97,7 @@ def checkadd(request):
             org.ID_contacts = instance_org_Con
             org.ID_NDS = instance_NDS
             org.save()
+
             User_Organization.objects.create(
                 user = request.user,
                 organization=org
@@ -111,27 +135,22 @@ def checkadd(request):
 
             #грузоперевозчик
             consignee_status = form_consignee.cleaned_data.get('consignee_status')
-            print("lalalalala", consignee_status)
             if consignee_status == '1':
-                
-                instance_cons_info = form_cons_info.save()
-                instance_cons_Con = form_cons_Con.save()
-                cons_client = form_cons_client.save()
+                if all([form_cons_info.is_valid(), form_cons_Con.is_valid(), form_cons_org.is_valid()]):
 
-                print('instance_cons_Con dict:', instance_cons_Con.pk)
-                print('instance_cons_info dict:', instance_cons_info.pk)
-                print('cons_client dict:', cons_client.pk)
+                    instance_cons_info = form_cons_info.save()
+                    instance_cons_Con = form_cons_Con.save()
+                    cons_client = form_cons_client.save()
 
+                    consignee_org = form_cons_org.save(commit=False)
+                    consignee_org.ID_information = instance_cons_info
+                    consignee_org.ID_contacts = instance_cons_Con
+                    consignee_org.ID_Counterparty = cons_client
+                    consignee_org.save()
 
-                consignee_org = form_cons_org.save(commit=False)
-                consignee_org.ID_information = instance_cons_info
-                consignee_org.ID_contacts = instance_cons_Con
-                consignee_org.ID_Counterparty = cons_client
-                consignee_org.save()
-
-                instance_consignee = form_consignee.save(commit=False)
-                instance_consignee.ID_Counterparty = cons_client
-                instance_consignee.save()
+                    instance_consignee = form_consignee.save(commit=False)
+                    instance_consignee.ID_Counterparty = cons_client
+                    instance_consignee.save()
 
             if consignee_status == '0':
                 instance_consignee = form_consignee.save()
@@ -150,18 +169,27 @@ def checkadd(request):
             end_check.save()
 
             #товары и связка товаров с объектом
-            instance_goods = form_goods.save()
+            # instance_goods = form_goods.save()
 
-            instance_checks_goods = checks_goods.save(commit=False)
-            instance_checks_goods.ID_check = end_check
-            instance_checks_goods.ID_goods = instance_goods
-            instance_checks_goods.save()
+            # instance_checks_goods = checks_goods.save(commit=False)
+            # instance_checks_goods.ID_check = end_check
+            # instance_checks_goods.ID_goods = instance_goods
+            # instance_checks_goods.save()
 
+
+            goodsMany = gformset.save()
+            for goodsM in goodsMany:
+                CheckForGoods.objects.create(ID_check=end_check, ID_goods=goodsM)
+            
             User_Check.objects.create(
                     user = request.user,
                     check_info=end_check
                 )
             return redirect('check')
+        else:
+            for form in all_forms:
+                if not form.is_valid():
+                    print(f'Ошибки формы {form.__class__.__name__}:', form.errors)
     else:
         form_check = CheckForm()
         form_org_info = Org_infoForm()
@@ -182,8 +210,11 @@ def checkadd(request):
         form_cons_client = CounterpartyForm(prefix="cons")
         form_additionally = AdditionallyForm()
         form_NDS = NDS_Form()
-        form_goods = GoodsForm()
-        checks_goods = CheckForGoodsForm()
+        # form_goods = GoodsForm()
+        # checks_goods = CheckForGoodsForm()
+
+        gformset = GoodsFormSet(queryset=Goods.objects.none(), prefix='gformset')
+
     context={
         'form_check': form_check,
         'form_NDS': form_NDS,
@@ -204,39 +235,25 @@ def checkadd(request):
         'form_cons_Con': form_cons_Con,
         'form_cons_client': form_cons_client,
         'form_additionally': form_additionally,
-        'form_goods': form_goods,
-        'checks_goods': checks_goods,
+        'gformset': gformset,
     }
 
     return render(request, 'documents/checkid.html', context)
-
-from django.shortcuts import get_object_or_404, redirect, render
 
 def checkid(request, id):
     check = get_object_or_404(Check, id=id)
 
     org = check.org_info
     org_info, org_dl, org_con, org_nds = org.ID_information, org.ID_employers, org.ID_contacts, org.ID_NDS
-
-    try:
-        org_bank_links = organization_bank.objects.get(ID_org=org)
-        org_banks = bank_requisites.objects.get(id=org_bank_links.ID_bank_id)
-    except (organization_bank.DoesNotExist, bank_requisites.DoesNotExist):
-        org_banks = None
+    org_bank_links = organization_bank.objects.get(ID_org=org)
+    org_banks = bank_requisites.objects.get(id=org_bank_links.ID_bank_id)
 
     counterparty = check.counter_info
-    try:
-        counter_org = Organization.objects.get(ID_Counterparty=counterparty)
-        counter_info = counter_org.ID_information
-        counter_con = counter_org.ID_contacts
-    except Organization.DoesNotExist:
-        counter_org, counter_info, counter_con = None, None, None
-
-    try:
-        counter_bank_links = Counterparty_bank.objects.get(ID_Counterparty=counterparty)
-        counter_banks = bank_requisites.objects.get(id=counter_bank_links.ID_bank_id)
-    except (Counterparty_bank.DoesNotExist, bank_requisites.DoesNotExist):
-        counter_banks = None
+    counter_org = Organization.objects.get(ID_Counterparty=counterparty)
+    counter_info = counter_org.ID_information
+    counter_con = counter_org.ID_contacts
+    counter_bank_links = Counterparty_bank.objects.get(ID_Counterparty=counterparty)
+    counter_banks = bank_requisites.objects.get(id=counter_bank_links.ID_bank_id)
 
     consignee = check.ID_consignee
     cons_info, cons_con = None, None
@@ -248,12 +265,6 @@ def checkid(request, id):
 
     more_info = check.more_info
 
-    try:
-        check_goods_link = CheckForGoods.objects.get(ID_check=check)
-        goods = check_goods_link.ID_goods
-    except CheckForGoods.DoesNotExist:
-        check_goods_link, goods = None, None
-
     if request.method == 'POST':
         form_check = CheckForm(request.POST, instance=check)
         form_org_info = Org_infoForm(request.POST, instance=org_info)
@@ -264,31 +275,32 @@ def checkid(request, id):
 
         form_org_for_bank = organization_bankForm(request.POST, instance=org_bank_links) 
         form_org_bank = bank_rForm(request.POST, instance=org_banks) 
-         
 
         form_buy_info = Org_infoForm(request.POST, prefix="buy", instance=counter_info)
         form_buy_Con = ContactsForm(request.POST, prefix="buy", instance=counter_con)
         form_counter = CounterpartyForm(request.POST, prefix="buy", instance=counterparty)
         form_org_counter = OrganizationForm(request.POST, prefix="buy", instance=counter_org)
 
-        form_buy_for_bank = Counterparty_bankForm(request.POST, prefix="buy", instance = counter_bank_links)
-        form_buy_bank = bank_rForm(request.POST, prefix="buy", instance = counter_banks)
-        
+        form_buy_for_bank = Counterparty_bankForm(request.POST, prefix="buy", instance=counter_bank_links)
+        form_buy_bank = bank_rForm(request.POST, prefix="buy", instance=counter_banks)
+
         form_consignee = ConsigneeForm(request.POST, instance=consignee)
         form_cons_info = Org_infoForm(request.POST, prefix="cons", instance=cons_info)
         form_cons_Con = ContactsForm(request.POST, prefix="cons", instance=cons_con)
         form_cons_client = CounterpartyForm(request.POST, prefix="cons", instance=consignee.ID_Counterparty if consignee and consignee.ID_Counterparty else None)
 
         form_additionally = AdditionallyForm(request.POST, instance=more_info)
-        form_goods = GoodsForm(request.POST, instance=goods)
-        checks_goods = CheckForGoodsForm(request.POST, instance=check_goods_link)
+
+        check_goods_instance = CheckForGoods.objects.filter(ID_check=check)
+        goods_instance = [ob.ID_goods for ob in check_goods_instance]
+        gformset = GoodsFormSet(request.POST, queryset=Goods.objects.filter(id__in=[b.id for b in goods_instance]), prefix='gformset')
 
         all_forms = [
             form_check, form_org_info, form_org_DL, form_org_Con, form_NDS, form_org,
             form_buy_info, form_buy_Con, form_counter, form_org_counter,
             form_consignee, form_cons_info, form_cons_Con, form_cons_client,
-            form_additionally, form_goods, checks_goods, form_org_bank, form_org_for_bank,
-            form_buy_bank, form_buy_for_bank
+            form_additionally, form_org_bank, form_org_for_bank,
+            form_buy_bank, form_buy_for_bank, gformset
         ]
 
         if all(f.is_valid() for f in all_forms):
@@ -304,15 +316,12 @@ def checkid(request, id):
             org.ID_NDS = nds_obj
             org.save()
 
-
             instance_org_bank = form_org_bank.save()
-            org_for_bank =  form_org_for_bank.save(commit=False)
-
+            org_for_bank = form_org_for_bank.save(commit=False)
             org_for_bank.ID_org = org
             org_for_bank.ID_bank = instance_org_bank
             org_for_bank.save()
 
-            
             counter_info_obj = form_buy_info.save()
             counter_con_obj = form_buy_Con.save()
             counterparty_obj = form_counter.save()
@@ -359,11 +368,9 @@ def checkid(request, id):
             check_obj.more_info = additional_obj
             check_obj.save()
 
-            goods_obj = form_goods.save()
-            checks_goods_obj = checks_goods.save(commit=False)
-            checks_goods_obj.ID_check = check_obj
-            checks_goods_obj.ID_goods = goods_obj
-            checks_goods_obj.save()
+            goodsMany = gformset.save()
+            for goodsM in goodsMany:
+                CheckForGoods.objects.create(ID_check=check_obj, ID_goods=goodsM)
 
             return redirect('check')
     else:
@@ -373,15 +380,16 @@ def checkid(request, id):
         form_org_Con = ContactsForm(instance=org_con)
         form_NDS = NDS_Form(instance=org_nds)
         form_org = OrganizationForm(instance=org)
-        form_org_bank = bank_rForm(instance=org_banks) 
+
+        form_org_bank = bank_rForm(instance=org_banks)
         form_org_for_bank = organization_bankForm(instance=org_bank_links)
 
         form_buy_info = Org_infoForm(prefix="buy", instance=counter_info)
         form_buy_Con = ContactsForm(prefix="buy", instance=counter_con)
         form_counter = CounterpartyForm(prefix="buy", instance=counterparty)
         form_org_counter = OrganizationForm(prefix="buy", instance=counter_org)
-        form_buy_bank = bank_rForm(prefix="buy", instance = counter_banks)
-        form_buy_for_bank = Counterparty_bankForm(prefix="buy", instance = counter_bank_links)
+        form_buy_bank = bank_rForm(prefix="buy", instance=counter_banks)
+        form_buy_for_bank = Counterparty_bankForm(prefix="buy", instance=counter_bank_links)
 
         form_consignee = ConsigneeForm(instance=consignee)
         form_cons_info = Org_infoForm(prefix="cons", instance=cons_info)
@@ -389,8 +397,8 @@ def checkid(request, id):
         form_cons_client = CounterpartyForm(prefix="cons", instance=consignee.ID_Counterparty if consignee and consignee.ID_Counterparty else None)
 
         form_additionally = AdditionallyForm(instance=more_info)
-        form_goods = GoodsForm(instance=goods)
-        checks_goods = CheckForGoodsForm(instance=check_goods_link)
+        goods_ids = CheckForGoods.objects.filter(ID_check=check).values_list('ID_goods_id', flat=True)
+        gformset = GoodsFormSet(queryset=Goods.objects.filter(id__in=goods_ids), prefix='gformset')
 
     context = {
         'form_check': form_check,
@@ -412,27 +420,34 @@ def checkid(request, id):
         'form_cons_Con': form_cons_Con,
         'form_cons_client': form_cons_client,
         'form_additionally': form_additionally,
-        'form_goods': form_goods,
-        'checks_goods': checks_goods,
+        'gformset': gformset,
     }
     return render(request, 'documents/checkid.html', context)
 
+def get_all_organizations(request):
+    result = []
+    queryset = Organization.objects.select_related('ID_information').all()
+    result = [
+        {'id': org.id, 'name': org.ID_information.org_name}
+        for org in queryset
+    ]
+    
+    return JsonResponse(result, safe=False)
 
 def get_organizations(request):
     result = []
-    queryset = Organization.objects.select_related('ID_information')
-    for org in queryset:
-        result.append({
-            'id': org.id,
-            'name': org.ID_information.org_name if org.ID_information else '—'
-        })
+    queryset = Organization.objects.select_related('ID_information').filter(ID_Counterparty__isnull=True)
+    result = [
+        {'id': org.id, 'name': org.ID_information.org_name}
+        for org in queryset
+    ]
+    print
+    return JsonResponse(result, safe=False)
 
-    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
-
-def get_counterparty_details(request):
+def get_organizations_details(request):
     org_id = request.GET.get('id')
     if not org_id:
-        return JsonResponse({'error': 'ID не передан'}, status=400)
+        return JsonResponse({'error': 'ID организации не передан'}, status=400)
 
     try:
         org = Organization.objects.select_related(
@@ -444,25 +459,23 @@ def get_counterparty_details(request):
         ).get(id=org_id)
     except Organization.DoesNotExist:
         return JsonResponse({'error': 'Организация не найдена'}, status=404)
-
     try:
         bank_ID = organization_bank.objects.select_related(
-            'ID_Counterparty',
+            'ID_org',
             'ID_bank',
-        ).get(ID_org=org)
-    except organization_bank.DoesNotExist:
+        ).filter(ID_org=org_id).first()
+    except Counterparty_bank.DoesNotExist:
         return JsonResponse({'error': 'Связка не найдена'}, status=404)
-
     data = {
         'org_name': org.ID_information.org_name if org.ID_information else '',
         'full_name': org.ID_information.all_name if org.ID_information else '',
         'INN': org.ID_information.INN_number if org.ID_information else '',
         'OKPO_code': org.ID_information.OKPO_code if org.ID_information else '',
-        'OKVED': org.ID_information.OKVED if org.ID_information else '',
-        'org_adress': org.ID_information.org_adress if org.ID_information else '',
-        'OGRN': org.ID_information.OGRN if org.ID_information else '',
-        'IP_fact': org.ID_information.IP_fact if org.ID_information else '',
-        'KPP': org.ID_information.KPP if org.ID_information else '',
+        'OKVED':org.ID_information.OKVED if org.ID_information else '',
+        'org_adress':org.ID_information.org_adress if org.ID_information else '',
+        'OGRN':org.ID_information.OGRN if org.ID_information else '',
+        'IP_fact':org.ID_information.IP_fact if org.ID_information else '',
+        'KPP':org.ID_information.KPP if org.ID_information else '',
 
         'bank_name': bank_ID.ID_bank.bank_name if bank_ID.ID_bank else '',
         'bank_adress': bank_ID.ID_bank.bank_adress if bank_ID.ID_bank else '',
@@ -478,6 +491,105 @@ def get_counterparty_details(request):
         'name_boss': org.ID_employers.name_boss if org.ID_employers else '',
         'name_buh': org.ID_employers.name_buh if org.ID_employers else '',
         'name_kass': org.ID_employers.name_kass if org.ID_employers else '',
+    }   
+    return JsonResponse(data)
+
+#форма отправки json на страницу
+def get_counterparty_details_for_counter(request):
+    cid = request.GET.get('id')
+    if not cid:
+        return JsonResponse({'error': 'ID не передан'}, status=400)
+
+    try:
+        org = Organization.objects.select_related(
+            'ID_information',
+            'ID_employers',
+            'ID_contacts',
+            'ID_NDS',
+            'ID_privite',
+        ).get(id=cid)
+    except Organization.DoesNotExist:
+        return JsonResponse({'error': 'Организация не найдена'}, status=404)
+
+    counterparty = Counterparty.objects.filter(id=org.ID_Counterparty_id).first()
+    if not counterparty:
+        try:
+            bank_ID = organization_bank.objects.select_related(
+                'ID_org',
+                'ID_bank',
+            ).filter(ID_org=cid).first()
+        except Counterparty_bank.DoesNotExist:
+            return JsonResponse({'error': 'Связка не найдена'}, status=404)
+        data = {
+            'org_name': org.ID_information.org_name if org.ID_information else '',
+            'full_name': org.ID_information.all_name if org.ID_information else '',
+            'INN': org.ID_information.INN_number if org.ID_information else '',
+            'OKPO_code': org.ID_information.OKPO_code if org.ID_information else '',
+            'OKVED':org.ID_information.OKVED if org.ID_information else '',
+            'org_adress':org.ID_information.org_adress if org.ID_information else '',
+            'OGRN':org.ID_information.OGRN if org.ID_information else '',
+            'IP_fact':org.ID_information.IP_fact if org.ID_information else '',
+            'KPP':org.ID_information.KPP if org.ID_information else '',
+
+            'bank_name': bank_ID.ID_bank.bank_name if bank_ID.ID_bank else '',
+            'bank_adress': bank_ID.ID_bank.bank_adress if bank_ID.ID_bank else '',
+            'bank_ks': bank_ID.ID_bank.KS if bank_ID.ID_bank else '',
+            'bank_rs': bank_ID.RS,
+
+            'phone': org.ID_contacts.phone if org.ID_contacts else '',
+            'fax': org.ID_contacts.fax if org.ID_contacts else '',
+            'email': org.ID_contacts.email if org.ID_contacts else '',
+            'vebsite': org.ID_contacts.vebsite if org.ID_contacts else '',
+
+            'position_boss': org.ID_employers.position_boss if org.ID_employers else '',
+            'name_boss': org.ID_employers.name_boss if org.ID_employers else '',
+            'name_buh': org.ID_employers.name_buh if org.ID_employers else '',
+            'name_kass': org.ID_employers.name_kass if org.ID_employers else '',
+        }   
+        return JsonResponse(data)
+        
+
+    bank_link = Counterparty_bank.objects.select_related(
+        'ID_Counterparty',
+        'ID_bank',
+    ).filter(ID_Counterparty=counterparty).first()
+
+    if not bank_link:
+        return JsonResponse({'error': 'Связка банк-контрагент не найдена'}, status=404)
+
+    info = org.ID_information
+    contacts = org.ID_contacts
+    employers = org.ID_employers
+    bank = bank_link.ID_bank
+
+    def safe_get(obj, attr):
+        return getattr(obj, attr, '') if obj else ''
+
+    data = {
+        'org_name': safe_get(info, 'org_name'),
+        'full_name': safe_get(info, 'all_name'),
+        'INN': safe_get(info, 'INN_number'),
+        'OKPO_code': safe_get(info, 'OKPO_code'),
+        'OKVED': safe_get(info, 'OKVED'),
+        'org_adress': safe_get(info, 'org_adress'),
+        'OGRN': safe_get(info, 'OGRN'),
+        'IP_fact': safe_get(info, 'IP_fact'),
+        'KPP': safe_get(info, 'KPP'),
+
+        'bank_name': safe_get(bank, 'bank_name'),
+        'bank_adress': safe_get(bank, 'bank_adress'),
+        'bank_ks': safe_get(bank, 'KS'),
+        'bank_rs': bank_link.RS if bank_link else '',
+
+        'phone': safe_get(contacts, 'phone'),
+        'fax': safe_get(contacts, 'fax'),
+        'email': safe_get(contacts, 'email'),
+        'vebsite': safe_get(contacts, 'vebsite'),
+
+        'position_boss': safe_get(employers, 'position_boss'),
+        'name_boss': safe_get(employers, 'name_boss'),
+        'name_buh': safe_get(employers, 'name_buh'),
+        'name_kass': safe_get(employers, 'name_kass'),
     }
 
     return JsonResponse(data)

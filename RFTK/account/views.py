@@ -397,25 +397,6 @@ def clientsid(request, id):
 
     return render(request, 'account/clientpg.html', context)
 
-#функция получения типов и связанных с ними организаций
-# def get_counterparties(request):
-#     ctype = request.GET.get('type')
-#     result = []
-
-#     if ctype == 'org':
-#         queryset = Organization.objects.select_related('ID_information', 'ID_Counterparty')
-#         result = [
-#             {'id': org.ID_Counterparty.id, 'name': org.ID_information.org_name}
-#             for org in queryset
-#         ]
-#     elif ctype == 'ind':
-#         queryset = Privite_FaceCounter.objects.select_related('ID_privite', 'ID_Counterparty')
-#         result = [
-#             {'id': priv.ID_Counterparty.id, 'name': priv.ID_privite.priv_name}
-#             for priv in queryset
-#         ]
-    
-#     return JsonResponse(result, safe=False)
 
 def get_counterparties(request):
     ctype = request.GET.get('type')
