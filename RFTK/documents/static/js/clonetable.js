@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = container.querySelector('tbody.goods-form');
     const totalForms = container.querySelector('[name="gformset-TOTAL_FORMS"]');
 
-    addGoodsButtons.forEach(addButton => {
-        addButton.addEventListener('click', function () {
+    tbody.addEventListener('click', function (e) {
+        if (e.target.classList.contains('add-goods')) {
             const currentFormCount = parseInt(totalForms.value);
             const lastRow = tbody.querySelector('tr.goods-form:last-child');
             const newRow = lastRow.cloneNode(true);
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             tbody.appendChild(newRow);
             totalForms.value = currentFormCount + 1;
-        });
+        }
     });
 
     // Удаление строки при клике по корзинке

@@ -5,6 +5,7 @@
 <head>
         <meta charset="UTF-8">
     <title>Контрагенты</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
     {% include 'header.html' %}
@@ -18,44 +19,60 @@
     <select id="counterparty-names">
         <option value="">-- Сначала выберите тип --</option>
     </select>
-
+    <p>{{clientF.type.label_tag}} {{clientF.type}}</p>
     <h1>Информация о контрагенте</h1>
-    {{clientF.type.label_tag}} {{clientF.type}}
-    <div id="org-fields">
-        <div>{{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}</div>
-
-            {{formO.org_name.label_tag}} {{ formO.org_name }}
-            {{formO.all_name.label_tag}} {{ formO.all_name }}
-            {{formO.INN_number.label_tag}} {{ formO.INN_number }}
-            {{formO.OKPO_code.label_tag}} {{ formO.OKPO_code }}
-            {{formO.OKVED.label_tag}} {{ formO.OKVED }}
-            {{formO.org_adress.label_tag}} {{ formO.org_adress }}
-            {{formO.OGRN.label_tag}} {{ formO.OGRN }}
-        <div id="kpp-field">
-            {{formO.KPP.label_tag}} {{ formO.KPP }}
+    <div class = 'boxie'>
+        
+        <div id="org-fields">
+            <p>{{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}</p>
+            <p>{{formO.org_name.label_tag}}{{ formO.org_name }}</p>
+            <p>{{formO.all_name.label_tag}}{{ formO.all_name }}</p>
+            <p>{{formO.INN_number.label_tag}}{{ formO.INN_number }}</p>
+            <p>{{formO.OKPO_code.label_tag}}{{ formO.OKPO_code }}</p>
+            <p>{{formO.OKVED.label_tag}}{{formO.OKVED }}</p>
+            <p>{{formO.org_adress.label_tag}}{{ formO.org_adress }}</p>
+            <p>{{formO.OGRN.label_tag}}{{ formO.OGRN }}</p>
+            <p id="kpp-field"> {{formO.KPP.label_tag}}{{ formO.KPP }}</p>
         </div>
     </div>
-
-    <div id="ind-fields" style="display: none;">
-            {{ formP.as_p }}
+    <div class = 'boxie'>
+        <div id="ind-fields" style="display: none;">
+            <p>{{ formP.priv_name.label_tag}}{{ formP.priv_name}}</p>
+            <p>{{ formP.priv_adress.label_tag}}{{ formP.priv_adress}}</p>
+            <p>{{ formP.passport.label_tag}}{{ formP.passport}}</p>
+            <p>{{ formP.Who_gave.label_tag}}{{ formP.Who_gave}}</p>
+            <p>{{ formP.DATE_gave.label_tag}}{{ formP.DATE_gave}}</p>
+        </div>
     </div>
-
     <h1>Банковские реквизиты контрагента</h1>
-        {{ bform.as_p }}
-        {{obform.RS.label_tag}} {{ obform.RS }}
+    <div class = 'boxie'>
+        <div>
+            <p>{{bform.bank_name.label_tag}}{{ bform.bank_name }}</p>
+            <p>{{bform.bank_adress.label_tag}}{{ bform.bank_adress }}</p>
+            <p>{{bform.KS.label_tag}}{{ bform.KS }}</p>
+            <p>{{obform.RS.label_tag}}{{ obform.RS }}</p>
 
-        {{ obform.management_form }}
-        {% for hidden in obform.hidden_fields %}
-            {{ hidden }}
-        {% endfor %}
+            {{ obform.management_form }}
+            {% for hidden in obform.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+        </div>
+    </div>
     <h1>Контактная информация</h1>
-        {{ formC.as_p }}
+    <div class = 'boxie'>
+        <div>
+            <p>{{formC.phone.label_tag}}{{ formC.phone}}</p>
+            <p>{{formC.fax.label_tag}}{{ formC.fax}}</p>
+            <p>{{formC.email.label_tag}}{{ formC.email}}</p>
+            <p>{{formC.vebsite.label_tag}}{{ formC.vebsite}}</p>
 
-        {{formD.position_boss.label_tag}} {{ formD.position_boss }}
-        {{formD.name_boss.label_tag}} {{ formD.name_boss }}
-        {{formD.name_buh.label_tag}} {{ formD.name_buh }}
-        {{formD.name_kass.label_tag}} {{ formD.name_kass }}
-        {{clientF.USL_name.label_tag}} {{clientF.USL_name}}
+            <p>{{formD.position_boss.label_tag}}{{ formD.position_boss }}</p>
+            <p>{{formD.name_boss.label_tag}}{{ formD.name_boss }}</p>
+            <p>{{formD.name_buh.label_tag}}{{ formD.name_buh }}</p>
+            <p>{{formD.name_kass.label_tag}}{{ formD.name_kass }}</p>
+            <p>{{clientF.USL_name.label_tag}}{{clientF.USL_name}}</p>
+        </div>
+    </div>
         <button type="submit">Сохранить</button>
     </form>
     <script src="{% static 'js/autostate.js' %}"></script>

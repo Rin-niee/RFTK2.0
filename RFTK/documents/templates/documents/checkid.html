@@ -4,93 +4,116 @@
 <head>
     <meta charset="UTF-8">
     <title>Счет</title>
+    <link rel="stylesheet" href="{% static '/css/basedoc.css' %}">
 </head>
 <body>
 {% include 'header.html' %}
 <form method="post">
         {% csrf_token %}
-        <p> Счет на оплату №{{form_check.check_num}} от {{form_check.check_date}}</p>
-        <div>
+        Счет на оплату №{{form_check.check_num}} от {{form_check.check_date}}
+
             <h1>Информация об организации</h1>
                 <select id="organizations-names">
                     <option value="">-- Выбрать организацию --</option>
                 </select>
-                <p>{{form_org_info.org_name.label_tag}}{{form_org_info.org_name}}</p>
-                <p>{{form_org_info.INN_number.label_tag}}{{form_org_info.INN_number}}</p>
-                <p>{{form_org_info.KPP.label_tag}}{{form_org_info.KPP}}</p>
-                <p>{{form_org_info.OGRN.label_tag}}{{form_org_info.OGRN}}</p>
-                <p>{{form_org_Con.phone.label_tag}}{{form_org_Con.phone}}</p>
-                <p>{{form_org_Con.fax.label_tag}}{{form_org_Con.fax}}</p>
-                <p>{{form_org_DL.position_boss.label_tag}}{{form_org_DL.position_boss}}</p>
-                <p>{{form_org_DL.name_boss.label_tag}}{{form_org_DL.name_boss}}</p>
-                <p>{{form_org_DL.name_buh.label_tag}}{{form_org_DL.name_buh}}</p>
+                <div class = 'boxie'>
+                    <div>
+                        <p>{{form_org_info.org_name.label_tag}}{{form_org_info.org_name}}</p>
+                        <p>{{form_org_info.INN_number.label_tag}}{{form_org_info.INN_number}}</p>
+                        <p>{{form_org_info.KPP.label_tag}}{{form_org_info.KPP}}</p>
+                        <p>{{form_org_info.OGRN.label_tag}}{{form_org_info.OGRN}}</p>
+                        <p>{{form_org_Con.phone.label_tag}}{{form_org_Con.phone}}</p>
+                        <p>{{form_org_Con.fax.label_tag}}{{form_org_Con.fax}}</p>
+                        <p>{{form_org_DL.position_boss.label_tag}}{{form_org_DL.position_boss}}</p>
+                        <p>{{form_org_DL.name_boss.label_tag}}{{form_org_DL.name_boss}}</p>
+                        <p>{{form_org_DL.name_buh.label_tag}}{{form_org_DL.name_buh}}</p>
+                    </div>
+                </div>
             <h1>Банковские реквизиты организации</h1>
-                <p>{{form_org_bank.bank_name.label_tag}}{{form_org_bank.bank_name}}</p>
-                <p>{{form_org_bank.bank_adress.label_tag}}{{form_org_bank.bank_adress}}</p>
-                <p>{{form_org_bank.KS.label_tag}}{{form_org_bank.KS}}</p>
-                <p>{{form_org_for_bank.RS.label_tag}}{{form_org_for_bank.RS}}</p>
-        </div>
-        <div>
+                <div class = 'boxie'>
+                    <div>
+                        <p>{{form_org_bank.bank_name.label_tag}}{{form_org_bank.bank_name}}</p>
+                        <p>{{form_org_bank.bank_adress.label_tag}}{{form_org_bank.bank_adress}}</p>
+                        <p>{{form_org_bank.KS.label_tag}}{{form_org_bank.KS}}</p>
+                        <p>{{form_org_for_bank.RS.label_tag}}{{form_org_for_bank.RS}}</p>
+                    </div>
+                </div>
+        
             <h1>Покупатель</h1>
                 <select id="organizations-names-buy">
                     <option value="">-- Выбрать организацию --</option>
                 </select>
-            <p>{{form_buy_info.org_name.label_tag}}{{form_buy_info.org_name}}</p>
-            <p>{{form_buy_info.INN_number.label_tag}}{{form_buy_info.INN_number}}</p>
-            <p>{{form_buy_info.KPP.label_tag}}{{form_buy_info.KPP}}</p>
-            <p>{{form_buy_info.OGRN.label_tag}}{{form_buy_info.OGRN}}</p>
-            <p>{{form_buy_Con.phone.label_tag}}{{form_buy_Con.phone}}</p>
-            <p>{{form_buy_Con.fax.label_tag}}{{form_buy_Con.fax}}</p>
-            <h1>Банковские реквизиты покупателя</h1>
-            <p>{{form_buy_bank.bank_name.label_tag}}{{form_buy_bank.bank_name}}</p>
-            <p>{{form_buy_bank.bank_adress.label_tag}}{{form_buy_bank.bank_adress}}</p>
-            <p>{{form_buy_bank.KS.label_tag}}{{form_buy_bank.KS}}</p>
-            <p>{{form_buy_for_bank.RS.label_tag}}{{form_buy_for_bank.RS}}</p>
-        </div>
-        <div>
+            <div class = 'boxie'>
+                <div>
+                    <p>{{form_buy_info.org_name.label_tag}}{{form_buy_info.org_name}}</p>
+                    <p>{{form_buy_info.INN_number.label_tag}}{{form_buy_info.INN_number}}</p>
+                    <p>{{form_buy_info.KPP.label_tag}}{{form_buy_info.KPP}}</p>
+                    <p>{{form_buy_info.OGRN.label_tag}}{{form_buy_info.OGRN}}</p>
+                    <p>{{form_buy_Con.phone.label_tag}}{{form_buy_Con.phone}}</p>
+                    <p>{{form_buy_Con.fax.label_tag}}{{form_buy_Con.fax}}</p>
+                    <h1>Банковские реквизиты покупателя</h1>
+                    <p>{{form_buy_bank.bank_name.label_tag}}{{form_buy_bank.bank_name}}</p>
+                    <p>{{form_buy_bank.bank_adress.label_tag}}{{form_buy_bank.bank_adress}}</p>
+                    <p>{{form_buy_bank.KS.label_tag}}{{form_buy_bank.KS}}</p>
+                    <p>{{form_buy_for_bank.RS.label_tag}}{{form_buy_for_bank.RS}}</p>
+                </div>
+            </div>
+        
             <h1>Грузополучатель</h1>
             <p>{{form_consignee.consignee_status}}</p>
-            <div id="consignee-info-block">
+            <div  class = 'boxie' id="consignee-info-block">
+                <div>
                 <p>{{form_cons_info.org_name.label_tag}}{{form_cons_info.org_name}}</p>
                 <p>{{form_cons_info.INN_number.label_tag}}{{form_cons_info.INN_number}}</p>
                 <p>{{form_cons_info.KPP.label_tag}}{{form_cons_info.KPP}}</p>
                 <p>{{form_cons_info.OGRN.label_tag}}{{form_cons_info.OGRN}}</p>
                 <p>{{form_cons_Con.phone.label_tag}}{{form_cons_Con.phone}}</p>
                 <p>{{form_cons_Con.fax.label_tag}}{{form_cons_Con.fax}}</p>
+                </div>
             </div>
-        </div>
-        <div>
+        
             <h1>Дополнительно</h1>
-            <p>{{form_additionally.Purpose.label_tag}}{{form_additionally.Purpose}}</p>
-            <p>{{form_additionally.Payfor.label_tag}}{{form_additionally.Payfor}}</p>
-            <p>{{form_additionally.Agreement.label_tag}}{{form_additionally.Agreement}}</p>
-            <p>{{form_NDS.nds_stavka}}</p>
-            <p>{{form_NDS.nds_status}}</p>
-            <p>{{form_additionally.additionally_status.label_tag}}{{form_additionally.additionally_status}}</p>
-            <p>{{form_additionally.currency.label_tag}}{{form_additionally.currency}}</p>
-            <p>{{form_additionally.discount_fact.label_tag}}{{form_additionally.discount_fact}}</p>
-            <p>{{form_additionally.discount_size}}</p>
-        </div>
-        <div id="goods-forms">
-                    <h1>Товары</h1>
-                    {{ gformset.management_form }}
+            <div class = 'boxie'>
+                <div>
+                    <p>{{form_additionally.Purpose.label_tag}}{{form_additionally.Purpose}}</p>
+                    <p>{{form_additionally.Payfor.label_tag}}{{form_additionally.Payfor}}</p>
+                    <p>{{form_additionally.Agreement.label_tag}}{{form_additionally.Agreement}}</p>
+                    <p>{{form_NDS.nds_stavka}}</p>
+                    <p>{{form_NDS.nds_status}}</p>
+                    <p>{{form_additionally.additionally_status.label_tag}}{{form_additionally.additionally_status}}</p>
+                    <p>{{form_additionally.currency.label_tag}}{{form_additionally.currency}}</p>
+                    <p>{{form_additionally.discount_fact.label_tag}}{{form_additionally.discount_fact}}</p>
+                    <p>{{form_additionally.discount_size}}</p>
+                </div>
+            </div>
+        
+            <h1>Товары</h1>
+            
+            <div class = 'boxie' id="goods-forms">
             <table>
                 <thead>
                     <tr>
-                        <th>{{ gformset.forms.0.g_name.label }}</th>
+                        {{ gformset.management_form }}
+                        <th rowspan="2">{{ gformset.forms.0.g_name.label }}</th>
+                        <th colspan="2" style="text-align: center;">Код</th>  <!-- общий заголовок для 2 и 3 столбца -->
+                        <th rowspan="2">{{ gformset.forms.0.g_count.label }}</th>
+                        <th rowspan="2">{{ gformset.forms.0.g_price.label }}</th>
+                        <th rowspan="2">{{ gformset.forms.0.g_discount.label }}</th>
+                        <th rowspan="2">{{ gformset.forms.0.g_discountPrice.label }}</th>
+                        <th rowspan="2">{{ gformset.forms.0.g_SumNoDiscountPrice.label }}</th>
+                        <th rowspan="2">{{ gformset.forms.0.g_SumDiscountPrice.label }}</th>
+                        <th rowspan="2"></th> <!-- для кнопок удалить и добавить -->
+                        <th rowspan="2"></th>
+                    </tr>
+                    <tr>
                         <th>{{ gformset.forms.0.g_codedig.label }}</th>
                         <th>{{ gformset.forms.0.g_codename.label }}</th>
-                        <th>{{ gformset.forms.0.g_count.label }}</th>
-                        <th>{{ gformset.forms.0.g_price.label }}</th>
-                        <th>{{ gformset.forms.0.g_discount.label }}</th>
-                        <th>{{ gformset.forms.0.g_discountPrice.label }}</th>
-                        <th>{{ gformset.forms.0.g_SumNoDiscountPrice.label }}</th>
-                        <th>{{ gformset.forms.0.g_SumDiscountPrice.label }}</th>
                     </tr>
                 </thead>
                 <tbody class="goods-form">
                     {% for form_b in gformset %}
                     <tr class="goods-form">
+                            {{ form_b.id }}
                         <td>{{ form_b.g_name }}</td>
                         <td>{{ form_b.g_codedig }}</td>
                         <td>{{ form_b.g_codename }}</td>
@@ -100,14 +123,13 @@
                         <td>{{ form_b.g_discountPrice }}</td>
                         <td>{{ form_b.g_SumNoDiscountPrice }}</td>
                         <td>{{ form_b.g_SumDiscountPrice }}</td>
-                        <td>{{ form_ob.as_p }}</td>
                         <td><button type="button" class="delete-row">🗑️</button></td>
                         <td><button type="button" class="add-goods">+</button></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
+    </div>
         <button type="submit">Сохранить</button>
     </form>
     <script src="{% static 'js/autostateprg.js' %}"></script>

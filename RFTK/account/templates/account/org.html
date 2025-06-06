@@ -1,66 +1,87 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-        <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <title>Контрагенты</title>
-    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
     {% include 'header.html' %}
 <form method="post">
         {% csrf_token %}
     <h1>Информация о организации</h1>
-        <p>{{ formO.IP_fact.label_tag }}{{ formO.IP_fact}}</p>
-        <p>{{formO.org_name.label_tag}} {{ formO.org_name }}</p>
-        <p>{{formO.all_name.label_tag}} {{ formO.all_name }}</p>
-        <p>{{formO.INN_number.label_tag}} {{ formO.INN_number }}</p>
-        <p>{{formO.OKPO_code.label_tag}} {{ formO.OKPO_code }}</p>
-        <p>{{formO.OKVED.label_tag}} {{ formO.OKVED }}</p>
-        <p>{{formO.org_adress.label_tag}} {{ formO.org_adress }}</p>
-        <p>{{formO.OGRN.label_tag}} {{ formO.OGRN }}</p>
-        <div id="kpp-field">
-            {{formO.KPP.label_tag}} {{ formO.KPP }}
+    <div class = 'boxie'>
+        <div>
+            <p>{{ formO.IP_fact.label_tag }}{{formO.IP_fact}}</p>
+            <p>{{formO.org_name.label_tag}}{{formO.org_name }}</p>
+            <p>{{formO.all_name.label_tag}}{{formO.all_name }}</p>
+            <p>{{formO.INN_number.label_tag}}{{formO.INN_number }}</p>
+            <p>{{formO.OKPO_code.label_tag}}{{formO.OKPO_code }}</p>
+            <p>{{formO.OKVED.label_tag}}{{formO.OKVED }}</p>
+            <p>{{formO.org_adress.label_tag}}{{formO.org_adress }}</p>
+            <p>{{formO.OGRN.label_tag}}{{ formO.OGRN }}</p>
+            <p id="kpp-field">{{formO.KPP.label_tag}}{{ formO.KPP }}</p>
         </div>
-
+    </div>
     <h1>Банковские реквизиты</h1>
+    <div class = 'boxie'>
         <div id="bank-forms">
             {{ bformset.management_form }}
             {{ obformset.management_form }}
 
             {% for form_b, form_ob in bank_pairs %}
             <div class="bank-form">
-                {{ form_b.as_p }}
-                {{ form_ob.as_p }}
+                {{ form_b.id }}
+                <p>{{form_b.bank_name.label_tag}}{{form_b.bank_name}}</p>
+                <p>{{form_b.bank_adress.label_tag}}{{form_b.bank_adress}}</p>
+                <p>{{form_b.KS.label_tag}}{{form_b.KS}}</p>
+                {{ form_ob.id }}
+                <p>{{form_ob.RS.label_tag}}{{form_ob.RS}}</p>
             </div>
             {% endfor %}
         </div>
-
+    </div>
     <button type="button" id="add-bank">+ Добавить расчетный счет</button>
     <h1>Должностные лица</h1>
+    <div class = 'boxie'>
+        <div>
         <p>{{formD.position_boss.label_tag}} {{ formD.position_boss }}</p>
         <p>{{formD.name_boss.label_tag}} {{ formD.name_boss }}</p>
         <p>{{formD.name_buh.label_tag}} {{ formD.name_buh }}</p>
         <p>{{formD.name_kass.label_tag}} {{ formD.name_kass }}</p>
-
+        </div>
+    </div>
     <h1>Контактная информация</h1>
-        <p>{{formC.phone.label_tag}}{{ formC.phone }}</p>
-        <p>{{formC.fax.label_tag}}{{ formC.fax }</p>}
-        <p>{{formC.email.label_tag}}{{ formC.email }}</p>
-        <p>{{formC.vebsite.label_tag}}{{ formC.vebsite }}</p>
-        
+    <div class = 'boxie'>
+        <div>
+            <p>{{formC.phone.label_tag}}{{ formC.phone }}</p>
+            <p>{{formC.fax.label_tag}}{{ formC.fax }}</p>
+            <p>{{formC.email.label_tag}}{{ formC.email }}</p>
+            <p>{{formC.vebsite.label_tag}}{{ formC.vebsite }}</p>
+        </div>
+    </div>    
     <h1> НДС</h1>
-        {{ formN.nds_stavka }}
-        {{ formN.nds_status }}
+    <div class = 'boxie'>
+        <div>
+            <p>{{ formN.nds_stavka }}</p>
+            <p>{{ formN.nds_status }}</p>
+        </div>
+    </div>
     <h1>Настройки для частных лиц</h1>
-        <p>{{ formP.priv_name.label_tag}} {{ formP.priv_name }}</p>
-        <p>{{ formP.priv_adress.label_tag}} {{ formP.priv_adress }}</p>
-        <p>{{ formP.passport.label_tag}} {{ formP.passport }}</p>
-        <p>{{ formP.Who_gave.label_tag}} {{ formP.Who_gave }}</p>
-        <p>{{ formP.DATE_gave.label_tag}} {{ formP.DATE_gave }}</p>
-        <p>{{ formOrg.management_form }}</p>
-    {% for hidden in formOrg.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
+    <div class = 'boxie'>
+        <div>
+            <p>{{ formP.priv_name.label_tag}} {{ formP.priv_name }}</p>
+            <p>{{ formP.priv_adress.label_tag}} {{ formP.priv_adress }}</p>
+            <p>{{ formP.passport.label_tag}} {{ formP.passport }}</p>
+            <p>{{ formP.Who_gave.label_tag}} {{ formP.Who_gave }}</p>
+            <p>{{ formP.DATE_gave.label_tag}} {{ formP.DATE_gave }}</p>
+            <p>{{ formOrg.management_form }}</p>
+            {% for hidden in formOrg.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+    </div>
+    </div>
         <button type="submit">Сохранить</button>
 </form>
 

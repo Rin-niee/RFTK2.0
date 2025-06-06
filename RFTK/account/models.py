@@ -75,7 +75,12 @@ class Organization(models.Model):
     ID_contacts = models.ForeignKey('Contacts', on_delete=models.CASCADE)
     ID_NDS = models.ForeignKey('NDS_info', on_delete=models.CASCADE, blank=True, null=True)
     ID_privite = models.ForeignKey('Privite_face', on_delete=models.CASCADE, blank=True, null=True)
-    ID_Counterparty = models.ForeignKey('Counterparty', on_delete=models.CASCADE, blank=True, null=True)
+
+    #класс для связи контрагента и частника
+class Counterparty_Organization(models.Model):
+    ID_Counterparty = models.ForeignKey('Counterparty', on_delete=models.CASCADE)
+    ID_Organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
+    
 
 #класс банковских реквизитов
 class bank_requisites(models.Model):
@@ -102,6 +107,13 @@ class Privite_FaceCounter(models.Model):
     ID_contacts = models.ForeignKey('Contacts', on_delete=models.CASCADE)
     ID_employers = models.ForeignKey('Employers', on_delete=models.CASCADE)
     ID_Counterparty = models.ForeignKey('Counterparty', on_delete=models.CASCADE, blank=True, null=True)
+
+
+#класс для связи контрагента и частника
+class Counterparty_privite(models.Model):
+    ID_Counterparty = models.ForeignKey('Counterparty', on_delete=models.CASCADE)
+    ID_Privite_FaceCounter = models.ForeignKey('Privite_FaceCounter', on_delete=models.CASCADE)
+    
 
 #класс для связи юзера и организации
 class User_Organization(models.Model):

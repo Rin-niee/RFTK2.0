@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
 
+
+#форма регистрации 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -10,7 +12,7 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
-
+#форма информации об организации
 class Org_infoForm(forms.ModelForm):
     IP_fact = forms.BooleanField(
         label="Факт ИП",
@@ -31,7 +33,7 @@ class Org_infoForm(forms.ModelForm):
             'IP_fact': 'ИП',
             'KPP': 'КПП',
         }
-
+#форма сотрудников/должностных лиц
 class EmployersForm(forms.ModelForm):
     class Meta:
         model = Employers
@@ -43,6 +45,7 @@ class EmployersForm(forms.ModelForm):
             'name_kass': 'Кассир',
         }
 
+#форма контактов
 class ContactsForm(forms.ModelForm):
     class Meta:
         model = Contacts
@@ -53,7 +56,7 @@ class ContactsForm(forms.ModelForm):
             'email': 'Электронная почта',
             'vebsite': 'Веб-сайт',
         }
-
+#форма НДС
 class NDS_Form(forms.ModelForm):
     NDS_STAVKI_CHOICES = [
         (0, 'Без НДС'),
@@ -88,6 +91,7 @@ class NDS_Form(forms.ModelForm):
             'nds_status': '',
         }
 
+#форма частных лиц
 class Privite_Form(forms.ModelForm):
     class Meta:
         model = Privite_face
@@ -100,6 +104,7 @@ class Privite_Form(forms.ModelForm):
             'DATE_gave': 'Дата выдачи',
         }
 
+#форма общая для организации
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
@@ -120,12 +125,12 @@ class OrganizationForm(forms.ModelForm):
         instance.ID_contacts = self.contacts
         instance.ID_NDS = self.nds
         instance.ID_privite = self.privite
-        instance.ID_Counterparty =  self.counterparty
         if commit:
             instance.save()
         return instance
     
 
+#банковские реквизиты
 class bank_rForm(forms.ModelForm):
     class Meta:
         model = bank_requisites
@@ -136,6 +141,7 @@ class bank_rForm(forms.ModelForm):
             'KS': 'Корр. счет №',
         }
 
+#форма для связи банка и организации
 class organization_bankForm(forms.ModelForm):
     class Meta:
         model = organization_bank
@@ -156,6 +162,7 @@ class organization_bankForm(forms.ModelForm):
             instance.save()
         return instance
 
+#форма для связи банка и контрагента
 class Counterparty_bankForm(forms.ModelForm):
     class Meta:
         model = Counterparty_bank
@@ -173,6 +180,7 @@ class Counterparty_bankForm(forms.ModelForm):
             instance.save()
         return instance
     
+#форма для контрагентов частников
 class Privite_FaceCounterForm(forms.ModelForm):
     class Meta:
         model = Privite_FaceCounter
@@ -193,11 +201,12 @@ class Privite_FaceCounterForm(forms.ModelForm):
         instance.ID_employers = self.employers
 
         instance.ID_privite = self.privite
-        instance.ID_Counterparty = self.counterparty
         if commit:
             instance.save()
         return instance
 
+
+#форма для контрагентов
 class CounterpartyForm(forms.ModelForm):
     TYPE_CHOICES = [
         ('org', 'Организация'),

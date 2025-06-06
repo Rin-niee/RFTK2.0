@@ -1,8 +1,14 @@
 {% include 'header.html' %}
 <h2>Добро пожаловать, {{ user.username }}</h2>
 <h3>Мои контрагенты:</h3>
-{% for client in clients %}
-    <li><a href="{% url 'clientsid' client.id %}">{{ client.id }}</a></li>
-{% endfor %}
+<ul>
+  {% for client in clients_q %}
+    <li>
+      <a href="{% url 'clientsid' client.id %}">{{ client.type }}: {{ client.name }}</a>
+    </li>
+  {% empty %}
+    <li>Контрагентов нет</li>
+  {% endfor %}
+</ul>
 
 <a href = "{% url 'clientsadd' %}">Добавить контрагента</a>

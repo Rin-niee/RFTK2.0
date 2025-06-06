@@ -208,9 +208,32 @@ def orgid(request, id):
 def clients(request):
     related_ids = User_Counterparty.objects.filter(user=request.user).values_list('counterparty', flat=True)
     clients = Counterparty.objects.filter(id__in=related_ids)
+    clients_q = []
+
+    for c in clients:
+        if c.type == 'org':
+            id_org = Counterparty_Organization.objects.get(ID_Counterparty_id=c.id)
+            org = id_org.ID_Organization
+            name_C = org.ID_information.org_name
+            typee = 'Организация'
+        elif c.type == 'ind':
+            id_pv = Counterparty_privite.objects.get(ID_Counterparty_id=c.id)
+            pv = id_pv.ID_Privite_FaceCounter
+            name_C = pv.ID_privite.priv_name
+            typee = 'Частное лицо'
+        else:
+            name_C = 'Неизвестный контрагент'
+            typee = 'Неизвестно'
+
+        clients_q.append({
+            'id': c.id,
+            'name': name_C,
+            'type': typee,
+        })
 
     context = {
-        'clients': clients
+        'clients': clients,
+        'clients_q': clients_q,
     }
     return render(request, 'account/clients.html', context)
 
@@ -235,44 +258,101 @@ def clientsadd(request):
                 forms_to_validate = []
 
             if all(form.is_valid() for form in forms_to_validate):
-                if counterparty_type == 'org':
-                    info_instance = formORGINF.save()
-                else:
-                    privite_instance = Privite.save()
-
-                employers_instance = formDL.save()
-                contacts_instance = formCon.save()
-                bank_instance = bform.save()
-                counterparty = client_form.save()
-
                 try:
+                    counterparty = client_form.save()
+                    #проверка существования должностного лица
+                    existing_org_DL = Employers.objects.filter(name_boss=formDL.cleaned_data['name_boss']).first()
+                    if existing_org_DL:
+                        employers_instance = existing_org_DL
+                    else:
+                        employers_instance = formDL.save()
+                    #проверка существования контактов
+                    existing_org_Con = Contacts.objects.filter(phone=formCon.cleaned_data['phone']).first()
+                    if existing_org_Con:
+                        contacts_instance = existing_org_Con
+                    else:
+                        contacts_instance = formCon.save()
+
                     if counterparty_type == 'org':
-                        Organization.objects.create(
-                            ID_information=info_instance,
-                            ID_employers=employers_instance,
-                            ID_contacts=contacts_instance,
-                            ID_NDS=None,
-                            ID_privite=None,
-                            ID_Counterparty=counterparty
-                        )
-                        User_Organization.objects.create(
-                            user = request.user,
-                            organization=Organization
-                        )
-                        
+                        #проверяем, существует ли такая информация
+                        existing_info = Organization_info.objects.filter(INN_number=formORGINF.cleaned_data['INN_number'], org_name=formORGINF.cleaned_data['org_name']).first()
+                        if existing_info:
+                            instance_org_info = existing_info
+                        else:
+                            instance_org_info = formORGINF.save()
+
+                        #если да,просто  подставляем ключ(и проверяем, есть ли связка с контрагентом, если нет, делаем), если нет, создаем и создаем связанные ключи
+                        if existing_info:
+                            org = Organization.objects.filter(ID_information=existing_info).first()
+
+                            #связь организации и контрагента
+                            counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=counterparty, ID_Organization = org).exists()
+                            if not counter_org_link:
+                                Counterparty_Organization.objects.create(
+                                ID_Counterparty=counterparty,
+                                ID_Organization=org
+                            )
+                                
+                            #связь контрагента и пользователя
+                            user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
+                            if not user_counter_link:
+                                User_Counterparty.objects.create(
+                                user=request.user,
+                                counterparty=counterparty
+                            )
+
+                        else:
+                            org_plus = Organization.objects.create(
+                                ID_information = instance_org_info,
+                                ID_employers = employers_instance,
+                                ID_contacts = contacts_instance
+                            )
+                            
+                            Counterparty_Organization.objects.create(
+                                ID_Counterparty=counterparty,
+                                ID_Organization=org_plus
+                            )
+
+                            User_Counterparty.objects.create(
+                                user=request.user,
+                                counterparty=counterparty
+                            )
+                    #если частное лицо
                     if counterparty_type == 'ind':
-                        Privite_FaceCounter.objects.create(
-                            ID_employers=employers_instance,
-                            ID_contacts=contacts_instance,
-                            ID_privite=privite_instance,
-                            ID_Counterparty=counterparty
-                        )
-                        User_Counterparty.objects.create(
-                            user = request.user,
-                            counterparty=counterparty
-                        )
+                        privite_namee = Privite_face.objects.filter(priv_name=Privite.cleaned_data['priv_name']).first()
+                        if privite_namee:
+                            privite_instance = privite_namee
+                        else:
+                            privite_instance = Privite.save()
+
+                        if privite_namee:
+                            Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_namee).first()
+
+                            Counterparty_privite.objects.create(
+                                ID_Counterparty=counterparty,
+                                ID_Privite_FaceCounter=Priv
+                            )
+                            User_Counterparty.objects.create(
+                                user = request.user,
+                                counterparty=counterparty
+                            )
+                        else:
+                            priv_1= Privite_FaceCounter.objects.create(
+                                ID_employers=employers_instance,
+                                ID_contacts=contacts_instance,
+                                ID_privite=privite_instance,
+                            )
+                            Counterparty_privite.objects.create(
+                                ID_Counterparty=counterparty,
+                                ID_Privite_FaceCounter=priv_1
+                            )
+                            User_Counterparty.objects.create(
+                                user = request.user,
+                                counterparty=counterparty
+                            )
                 except Exception as e:
                     print(f"Ошибка при создании: {e}")
+                bank_instance = bform.save()
 
                 ob_instance = obform.save(commit=False)
                 ob_instance.ID_Counterparty = counterparty
@@ -307,11 +387,14 @@ def clientsid(request, id):
     client = get_object_or_404(Counterparty, id=id)
 
     if client.type == 'org':
-        sub_instance = get_object_or_404(Organization, ID_Counterparty=client)
+        sub_instance = get_object_or_404(Counterparty_Organization, ID_Counterparty=client)
+        sub_instance = sub_instance.ID_Organization
         info_instance = sub_instance.ID_information
+
         privite_instance = None
     else:
-        sub_instance = get_object_or_404(Privite_FaceCounter, ID_Counterparty=client)
+        sub_instance = get_object_or_404(Counterparty_privite, ID_Counterparty=client)
+        sub_instance = sub_instance.ID_Privite_FaceCounter
         privite_instance = sub_instance.ID_privite
         info_instance = None
 
@@ -376,6 +459,7 @@ def clientsid(request, id):
         formCon = ContactsForm(instance=contacts_instance)
         bform = bank_rForm(instance=bank_instance)
         client_form = CounterpartyForm(instance=client)
+
         obform = Counterparty_bankForm(instance=client_bank_instance)
 
         if client.type == 'org':
@@ -403,19 +487,32 @@ def get_counterparties(request):
     result = []
 
     if ctype == 'org':
-        queryset = Organization.objects.select_related('ID_information', 'ID_Counterparty')
-        for org in queryset:
+        queryset = Counterparty_Organization.objects.select_related(
+            'ID_Counterparty', 'ID_Organization__ID_information'
+        )
+        for item in queryset:
+            org = item.ID_Organization
+            info = org.ID_information
+            counterparty = item.ID_Counterparty
+            # Формируем строку "имя (условное наименование)"
+            display_name = f"{info.org_name if info else '—'} ({counterparty.USL_name})"
             result.append({
-                'id': org.ID_Counterparty.id if org.ID_Counterparty else org.id,
-                'name': org.ID_information.org_name if org.ID_information else '—'
+                'id': counterparty.id,
+                'name': display_name
             })
 
     elif ctype == 'ind':
-        queryset = Privite_FaceCounter.objects.select_related('ID_privite', 'ID_Counterparty')
-        for priv in queryset:
+        queryset = Counterparty_privite.objects.select_related(
+            'ID_Counterparty', 'ID_Privite_FaceCounter__ID_privite'
+        )
+        for item in queryset:
+            priv = item.ID_Privite_FaceCounter
+            priv_info = priv.ID_privite
+            counterparty = item.ID_Counterparty
+            display_name = f"{priv_info.priv_name if priv_info else '—'} ({counterparty.USL_name})"
             result.append({
-                'id': priv.ID_Counterparty.id if priv.ID_Counterparty else None,
-                'name': priv.ID_privite.priv_name if priv.ID_privite else '—'
+                'id': counterparty.id,
+                'name': display_name
             })
 
     return JsonResponse(result, safe=False, json_dumps_params={'allow_nan': True})
@@ -430,69 +527,26 @@ def get_counterparty_details(request):
     try:
         counterparty = Counterparty.objects.get(id=cid)
     except Counterparty.DoesNotExist:
-        try:
-            org = Organization.objects.select_related(
-                'ID_information',
-                'ID_employers',
-                'ID_contacts',
-                'ID_NDS',
-                'ID_privite',
-            ).get(id=cid)
-        except Organization.DoesNotExist:
-            return JsonResponse({'error': 'Организация не найдена'}, status=404)
-        try:
-            bank_ID = organization_bank.objects.select_related(
-                'ID_org',
-                'ID_bank',
-            ).filter(ID_org=cid).first()
-        except Counterparty_bank.DoesNotExist:
-            return JsonResponse({'error': 'Связка не найдена'}, status=404)
-        data = {
-            'org_name': org.ID_information.org_name if org.ID_information else '',
-            'full_name': org.ID_information.all_name if org.ID_information else '',
-            'INN': org.ID_information.INN_number if org.ID_information else '',
-            'OKPO_code': org.ID_information.OKPO_code if org.ID_information else '',
-            'OKVED':org.ID_information.OKVED if org.ID_information else '',
-            'org_adress':org.ID_information.org_adress if org.ID_information else '',
-            'OGRN':org.ID_information.OGRN if org.ID_information else '',
-            'IP_fact':org.ID_information.IP_fact if org.ID_information else '',
-            'KPP':org.ID_information.KPP if org.ID_information else '',
-
-            'bank_name': bank_ID.ID_bank.bank_name if bank_ID.ID_bank else '',
-            'bank_adress': bank_ID.ID_bank.bank_adress if bank_ID.ID_bank else '',
-            'bank_ks': bank_ID.ID_bank.KS if bank_ID.ID_bank else '',
-            'bank_rs': bank_ID.RS,
-
-            'phone': org.ID_contacts.phone if org.ID_contacts else '',
-            'fax': org.ID_contacts.fax if org.ID_contacts else '',
-            'email': org.ID_contacts.email if org.ID_contacts else '',
-            'vebsite': org.ID_contacts.vebsite if org.ID_contacts else '',
-
-            'position_boss': org.ID_employers.position_boss if org.ID_employers else '',
-            'name_boss': org.ID_employers.name_boss if org.ID_employers else '',
-            'name_buh': org.ID_employers.name_buh if org.ID_employers else '',
-            'name_kass': org.ID_employers.name_kass if org.ID_employers else '',
-        }
-        return JsonResponse(data)   
+        return JsonResponse({'error': 'Контрагент не найден'}, status=404)
 
     if counterparty.type == 'org':
+        # Ищем связку с организацией
         try:
-            org = Organization.objects.select_related(
-                'ID_information',
-                'ID_employers',
-                'ID_contacts',
-                'ID_NDS',
-                'ID_privite',
+            link = Counterparty_Organization.objects.select_related(
+                'ID_Organization__ID_information',
+                'ID_Organization__ID_employers',
+                'ID_Organization__ID_contacts',
+                'ID_Organization__ID_NDS',
+                'ID_Organization__ID_privite',
             ).get(ID_Counterparty=counterparty)
-        except Organization.DoesNotExist:
+        except Counterparty_Organization.DoesNotExist:
             return JsonResponse({'error': 'Организация не найдена'}, status=404)
-        try:
-            bank_ID = Counterparty_bank.objects.select_related(
-                'ID_Counterparty',
-                'ID_bank',
-            ).get(ID_Counterparty=counterparty)
-        except Counterparty_bank.DoesNotExist:
-            return JsonResponse({'error': 'Связка не найдена'}, status=404)
+
+        org = link.ID_Organization
+
+        # Получаем банк по связке
+        bank = Counterparty_bank.objects.select_related('ID_bank').filter(ID_Counterparty=counterparty).first()
+
         data = {
             'type': 'org',
             'usl_name': counterparty.USL_name,
@@ -500,16 +554,16 @@ def get_counterparty_details(request):
             'full_name': org.ID_information.all_name if org.ID_information else '',
             'INN': org.ID_information.INN_number if org.ID_information else '',
             'OKPO_code': org.ID_information.OKPO_code if org.ID_information else '',
-            'OKVED':org.ID_information.OKVED if org.ID_information else '',
-            'org_adress':org.ID_information.org_adress if org.ID_information else '',
-            'OGRN':org.ID_information.OGRN if org.ID_information else '',
-            'IP_fact':org.ID_information.IP_fact if org.ID_information else '',
-            'KPP':org.ID_information.KPP if org.ID_information else '',
+            'OKVED': org.ID_information.OKVED if org.ID_information else '',
+            'org_adress': org.ID_information.org_adress if org.ID_information else '',
+            'OGRN': org.ID_information.OGRN if org.ID_information else '',
+            'IP_fact': org.ID_information.IP_fact if org.ID_information else '',
+            'KPP': org.ID_information.KPP if org.ID_information else '',
 
-            'bank_name': bank_ID.ID_bank.bank_name if bank_ID.ID_bank else '',
-            'bank_adress': bank_ID.ID_bank.bank_adress if bank_ID.ID_bank else '',
-            'bank_ks': bank_ID.ID_bank.KS if bank_ID.ID_bank else '',
-            'bank_rs': bank_ID.RS,
+            'bank_name': bank.ID_bank.bank_name if bank and bank.ID_bank else '',
+            'bank_adress': bank.ID_bank.bank_adress if bank and bank.ID_bank else '',
+            'bank_ks': bank.ID_bank.KS if bank and bank.ID_bank else '',
+            'bank_rs': bank.RS if bank else '',
 
             'phone': org.ID_contacts.phone if org.ID_contacts else '',
             'fax': org.ID_contacts.fax if org.ID_contacts else '',
@@ -522,37 +576,34 @@ def get_counterparty_details(request):
             'name_kass': org.ID_employers.name_kass if org.ID_employers else '',
         }
 
-    if counterparty.type == 'ind':
+    elif counterparty.type == 'ind':
         try:
-            priv = Privite_FaceCounter.objects.select_related(
-                'ID_privite',
-                'ID_contacts',
-                'ID_employers',
+            link = Counterparty_privite.objects.select_related(
+                'ID_Privite_FaceCounter__ID_privite',
+                'ID_Privite_FaceCounter__ID_contacts',
+                'ID_Privite_FaceCounter__ID_employers',
             ).get(ID_Counterparty=counterparty)
-        except Privite_FaceCounter.DoesNotExist:
+        except Counterparty_privite.DoesNotExist:
             return JsonResponse({'error': 'Частное лицо не найдено'}, status=404)
-        try:
-            bank_ID = Counterparty_bank.objects.select_related(
-                'ID_Counterparty',
-                'ID_bank',
-            ).get(ID_Counterparty=counterparty)
-        except Counterparty_bank.DoesNotExist:
-            return JsonResponse({'error': 'Связка не найдена'}, status=404)
+
+        priv = link.ID_Privite_FaceCounter
+
+        bank = Counterparty_bank.objects.select_related('ID_bank').filter(ID_Counterparty=counterparty).first()
+
         data = {
             'type': 'ind',
             'usl_name': counterparty.USL_name,
             'full_name': priv.ID_privite.priv_name if priv.ID_privite else '',
             'address': priv.ID_privite.priv_adress if priv.ID_privite else '',
 
-            # Паспорт
             'passport': priv.ID_privite.passport if priv.ID_privite else '',
             'Who_gave': priv.ID_privite.Who_gave if priv.ID_privite else '',
             'DATE_gave': priv.ID_privite.DATE_gave if priv.ID_privite else '',
 
-            'bank_name': bank_ID.ID_bank.bank_name if bank_ID.ID_bank else '',
-            'bank_adress': bank_ID.ID_bank.bank_adress if bank_ID.ID_bank else '',
-            'bank_ks': bank_ID.ID_bank.KS if bank_ID.ID_bank else '',
-            'bank_rs': bank_ID.RS,
+            'bank_name': bank.ID_bank.bank_name if bank and bank.ID_bank else '',
+            'bank_adress': bank.ID_bank.bank_adress if bank and bank.ID_bank else '',
+            'bank_ks': bank.ID_bank.KS if bank and bank.ID_bank else '',
+            'bank_rs': bank.RS if bank else '',
 
             'phone': priv.ID_contacts.phone if priv.ID_contacts else '',
             'fax': priv.ID_contacts.fax if priv.ID_contacts else '',
@@ -564,5 +615,8 @@ def get_counterparty_details(request):
             'name_buh': priv.ID_employers.name_buh if priv.ID_employers else '',
             'name_kass': priv.ID_employers.name_kass if priv.ID_employers else '',
         }
+
+    else:
+        return JsonResponse({'error': 'Неизвестный тип контрагента'}, status=400)
 
     return JsonResponse(data)
