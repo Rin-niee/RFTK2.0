@@ -1,9 +1,35 @@
-   {% include 'header.html' %}
-<h2>Добро пожаловать, {{ user.username }}</h2>
-<h3>Мои организации:</h3>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/basespage.css' %}">
+</head>
+<body>
+{% include 'header.html' %}
+<h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> Организации</h1>
+
+<div class ='find-create'><form method="get" action="{% url 'org' %}">
+    <input type="text" name="q" value="{{ request.GET.q }}">
+    <button class = 'add_button' type="submit">Поиск</button>
+</form> <button class = 'add_button'><a href = "{% url 'orgadd' %}">➕💼 Добавить организацию</a></button></div>
+<h2> Список моих организаций</h2>
 <ul>
-  {% for org in orgs %}
-    <li><a href = "{% url 'orgid' org.id %}">{{ org.ID_information.org_name }}</a></li>
+<div class = 'clients-container'>
+    {% for org in org_found|default:orgs %}
+      <div class = 'clients-block'>
+            <h2 class = 'clients-block-name'><a href = "{% url 'orgid' org.id %}">{{ org.ID_information.org_name }}</a></h2>
+            <p>Полное наименование: {{org.ID_information.all_name}}</p>
+            <p>ИНН: {{org.ID_information.INN_number}}</p>
+            <p> Адрес организации: {{org.ID_information.org_adress}}</p>
+      </div>
+
+  {% empty %}
+    <li>Организаций нет</li>
   {% endfor %}
-  <a href = "{% url 'orgadd' %}">Добавить организацию</a>
+</div>
 </ul>
+</body>
+</html>

@@ -1,14 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/basespage.css' %}">
+</head>
+<body>
 {% include 'header.html' %}
-<h2>Добро пожаловать, {{ user.username }}</h2>
-<h3>Мои контрагенты:</h3>
-<ul>
-  {% for client in clients_q %}
-    <li>
-      <a href="{% url 'clientsid' client.id %}">{{ client.type }}: {{ client.name }}</a>
-    </li>
-  {% empty %}
-    <li>Контрагентов нет</li>
-  {% endfor %}
-</ul>
+<h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> Контрагенты</h1>
 
-<a href = "{% url 'clientsadd' %}">Добавить контрагента</a>
+<div class ='find-create'>
+<form method="get" action="{% url 'clients' %}">
+    <input type="text" name="q" value="{{ request.GET.q }}">
+    <button class = 'add_button' type="submit">Поиск</button>
+</form>
+<button class = 'add_button'><a href = "{% url 'clientsadd' %}">➕💼 Добавить нового контрагента</a></button>
+</div>
+<h2> 
+    {% if query %}Результаты поиска "{{ query }}" 
+    {% else %}Список созданных контрагентов{% endif %}
+</h2>
+
+<ul>
+<div class='clients-container'>
+    {% for client in clients_query_q|default:clients %}
+        <div class='clients-block'>
+            <h2 class='clients-block-name'>
+                <a href="{% url 'clientsid' client.id %}">
+                  {{ client.name }}
+                </a>
+            </h2>
+            <p>Тип: {{ client.type }}</p>
+            <p>Условное наименование: {{ client.usl_name }}</p>
+        </div>
+    {% empty %}
+        <li>{% if query %}Ничего не найдено{% else %}Контрагентов нет{% endif %}</li>
+    {% endfor %}
+</div>
+</ul>
+</body>
+</html>

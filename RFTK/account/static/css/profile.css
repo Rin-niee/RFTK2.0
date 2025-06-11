@@ -1,0 +1,19 @@
+.profile-block{
+    background: #30c0c8;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 4px;
+    border: 2px solid #679396;
+    margin: 10px;
+    max-width: 420px;
+}
+
+.profile-container{
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.profile-block-name{
+    font-size: 40px;
+}

@@ -1,12 +1,21 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/header.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
 <div class="header">
-    <h1>Документы и бланки онлайн</h1>
-    <li>
-        <a href="{% url 'index' %}">Главная</a>
-        <a href="{% url 'profile' %}">Личный кабинет</a>
-        <a href="{% url 'check' %}">Документы</a>
-        <a href="{% url 'logout' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Выйти</a>
+    <h1 class = 'header-h1'><a>Документы и бланки онлайн</a></h1>
+    {% if user.is_authenticated %}
+    <p class = 'block-login'>
+        <a href="{% url 'index' %}" class ='header-link'>Главная</a>
+        <a href="{% url 'profile' %}" class ='header-link'>Личный кабинет</a>
+        <a href="{% url 'check' %}" class ='header-link'>Документы</a>
+        <a href="{% url 'logout' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class ='header-link'>Выйти</a>
         <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
             {% csrf_token %}
         </form>
-    </li>
+        {% else %}
+        <a href="{% url 'register' %}" class ='header-link'>Зарегистрироваться</a> | 
+        <a href="{% url 'login' %}" class ='header-link'>Войти</a>
+    </p>
+    {% endif %}
 </div>

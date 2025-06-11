@@ -1,8 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/basespage.css' %}">
+</head>
+<body>
 {% include 'header.html' %}
-<h2>Добро пожаловать, {{ user.username }}</h2>
-<h3>Мои счета:</h3>
-{% for check in checks %}
-    <li><a href="{% url 'checkid' check.id %}">{{ check.id }}</a></li>
-{% endfor %}
+<h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> Документы</h1>
 
-<a href = "{% url 'checkadd' %}">Добавить счет</a>
+<div class ='find-create'>
+<!-- <form method="get" action="{% url 'clients' %}">
+    <input type="text" name="q" value="{{ request.GET.q }}">
+    <button class = 'add_button' type="submit">Поиск</button>
+</form> -->
+<button class = 'add_button'><a href = "{% url 'checkadd' %}">➕💼 Добавить новый счет</a></button>
+</div>
+<h2> Список созданных счетов</h2>
+<ul>
+<div class = 'clients-container'>
+    {% for check in checks %}
+      <div class = 'clients-block'>
+            <h2 class = 'clients-block-name'><a href="{% url 'checkid' check.id %}">{{ check.id }}</a></h2>
+            <p>Наименование организации: {{ check.name }} </p>
+            <p>Наименование контрагента: {{ check.counter }} </p>
+            <p>Контрагент: {{ client.usl_name }}</p>
+      </div>
+
+  {% empty %}
+    <li>Счетов нет</li>
+  {% endfor %}
+</div>
+</ul>
+</body>
+</html>

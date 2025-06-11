@@ -1,0 +1,108 @@
+.boxie{
+    display: flex;
+    margin: 20px;
+    background: #30c0c8;
+    border-radius: 10px;
+    padding: 30px 30px 30px 30px;
+    border-color: #30c0c8;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+input:not(#id_check_num):not(#id_check_date):not(#id_type_0):not(#id_type_1):not(#id_IP_fact):not(#id_nds_status_0):not(#id_nds_status_1):not(#id_nds_status_2){
+   width: 70%;
+
+}
+
+#id_type{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.counter_name{
+    color: white;
+}
+label{
+    color: white;
+}
+
+.form-fieldc{
+    display: flex;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    flex-wrap: wrap;
+    margin:5px;
+}
+
+.butt{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.select-pair {
+    display: flex;
+    width: fit-content;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin:20px;
+}
+
+.select-pair select {
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.select-pair select:first-child {
+    border-right: 1px solid #ccc;
+}
+
+.select-pair select:last-child {
+    border-left: 1px solid transparent; 
+}
+
+/* .select-pair select:focus {
+    background-color: #f3f3f3;
+} */
+
+.bank-form{
+    border: 2px solid white;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    padding: 15px;
+}
+
+.butt-add-0{
+    margin:20px;
+}
+
+.select-one {
+    display: flex;
+    width: fit-content;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.select-one select {
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.forms import modelformset_factory
 from itertools import zip_longest
+from django.db.models import Q
 
 
 #страничка регистрации
@@ -38,7 +39,14 @@ def org(request):
     orgs = Organization.objects.filter(
         id__in=User_Organization.objects.filter(user=request.user).values_list('organization', flat=True)
     )
-    return render(request, 'account/dashboard.html', {'orgs': orgs})
+    query = request.GET.get('q')
+    if query:
+        org_found = orgs.filter(Q(ID_information__org_name__icontains=query)).distinct()
+        if not org_found.exists():
+            org_found = orgs
+    else:
+        org_found = orgs 
+    return render(request, 'account/dashboard.html', {'orgs': orgs, 'org_found': org_found})
 
 #страничка добавления организаций
 BankFormSet = modelformset_factory(bank_requisites, form=bank_rForm, extra=1)
@@ -209,6 +217,8 @@ def clients(request):
     related_ids = User_Counterparty.objects.filter(user=request.user).values_list('counterparty', flat=True)
     clients = Counterparty.objects.filter(id__in=related_ids)
     clients_q = []
+    clients_query_q = []
+    query = request.GET.get('q')
 
     for c in clients:
         if c.type == 'org':
@@ -224,16 +234,47 @@ def clients(request):
         else:
             name_C = 'Неизвестный контрагент'
             typee = 'Неизвестно'
-
+        usl_name = c.USL_name
         clients_q.append({
             'id': c.id,
             'name': name_C,
             'type': typee,
+            'usl_name': usl_name
         })
+    
+    if query:
+        clients_found = clients.filter(
+            Q(counterparty_organization__ID_Organization__ID_information__org_name__icontains=query)
+        ).distinct()
+        if not clients_found.exists():
+            clients_found = clients.filter(
+            Q(counterparty_privite__ID_Privite_FaceCounter__ID_privite__priv_name__icontains=query)
+        ).distinct()
+        for c in clients_found:
+            if c.type == 'org':
+                id_org = Counterparty_Organization.objects.get(ID_Counterparty_id=c.id)
+                org = id_org.ID_Organization
+                name_C = org.ID_information.org_name
+                typee = 'Организация'
+            elif c.type == 'ind':
+                id_pv = Counterparty_privite.objects.get(ID_Counterparty_id=c.id)
+                pv = id_pv.ID_Privite_FaceCounter
+                name_C = pv.ID_privite.priv_name
+                typee = 'Частное лицо'
+            else:
+                name_C = 'Неизвестный контрагент'
+                typee = 'Неизвестно'
+            usl_name = c.USL_name
 
+            clients_query_q.append({
+            'id': c.id,
+            'name': name_C,
+            'type': typee,
+            'usl_name': usl_name
+        })
     context = {
-        'clients': clients,
-        'clients_q': clients_q,
+        'clients': clients_q,
+        'clients_query_q': clients_query_q,
     }
     return render(request, 'account/clients.html', context)
 
@@ -378,6 +419,7 @@ def clientsadd(request):
         'bform': bform,
         'clientF': client_form,
         'obform': obform,
+        'is_edit': False,
     }
     return render(request, 'account/clientpg.html', context)
 
@@ -477,6 +519,7 @@ def clientsid(request, id):
         'bform': bform,
         'clientF': client_form,
         'obform': obform,
+        'is_edit': True,
     }
 
     return render(request, 'account/clientpg.html', context)

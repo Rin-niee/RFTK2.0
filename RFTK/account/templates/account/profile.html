@@ -4,10 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
     {% include 'header.html' %}
-    <a href = "{% url 'org' %}"> Мои организации</a>
-    <a href = "{% url 'clients' %}"> Мои контрагенты</a>
+    <h1 class = 'main-header'>Личный кабинет</h1>
+    <div class = 'profile-container'>
+        <div class = 'profile-block'>
+            <a href = "{% url 'org' %}" class = 'profile-block-name'> Мои организации</a>
+            <p>Список организаций, добавленных вами. Вы можете редактировать, удалять и добавлять новые.</p>
+        </div>
+        <div class = 'profile-block'>
+            <a href = "{% url 'clients' %}" class = 'profile-block-name'> Мои контрагенты</a>
+            <p>Список лиц или организаций, с которыми у вас есть деловые отношения. Вы можете редактировать, удалять и добавлять новых.</p>
+        </div>
+        <div class = 'profile-block'>
+            <a href = "{% url 'check' %}" class = 'profile-block-name'> Мои документы</a>
+            <p>Список документов, созданных вами. Вы можете просматривать, редактировать и загружать новые.</p>
+        </div>
+    </div>
 </body>
 </html>

@@ -5,32 +5,22 @@ from account.forms import *
 from .models import *
 from .forms import *
 from django.forms import modelformset_factory
-from itertools import zip_longest
 
 def check(request):
-    checks = Check.objects.filter(
-        id__in=User_Check.objects.filter(user=request.user).values_list('check_info', flat=True)
-    )
-    return render(request, 'documents/check.html', {'checks': checks})
+    # Получаем все чеки пользователя за один запрос
+    user_checks = Check.objects.filter(
+        user_check__user=request.user
+    ).select_related(
+        'org_info__ID_information'
+    ).distinct()
 
-# def checkadd(request):
-#     GoodsFormSet = modelformset_factory(Goods, form=GoodsForm, extra=1)
+    # Формируем данные для шаблона
+    checks_data = [{
+        'id': check.id,
+        'name': check.org_info.ID_information.org_name,
+    } for check in user_checks]
 
-#     if request.method == 'POST':
-#         gformset = GoodsFormSet(request.POST, prefix='gformset')
-
-#         if gformset.is_valid():
-#             goodsMany = gformset.save()
-#             for goodsM in goodsMany:
-#                 CheckForGoods.objects.create(ID_check=Check.objects.get(pk=2), ID_goods=goodsM)
-#             return redirect('check')
-
-#     else:
-#         gformset = GoodsFormSet(queryset=Goods.objects.none(), prefix='gformset')
-#     return render(request, 'documents/checkid.html', {
-#         'gformset': gformset,
-
-#     })
+    return render(request, 'documents/check.html', {'checks': checks_data})
 
 GoodsFormSet = modelformset_factory(Goods, form=GoodsForm, extra=1)
 
@@ -533,7 +523,7 @@ def get_organizations_details(request):
     # Получаем связанную банковскую информацию
     bank_link = organization_bank.objects.select_related(
         'ID_bank',
-    ).filter(ID_org=org).first()  # здесь важно сравнивать с объектом, а не с id
+    ).filter(ID_org=org).first()
 
     data = {
         'org_name': getattr(org.ID_information, 'org_name', ''),
