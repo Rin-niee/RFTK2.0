@@ -71,18 +71,12 @@ def checkadd(request):
 
         if all(form.is_valid() for form in all_forms):
             #проверка существования организации
-            existing_info = Organization_info.objects.filter(INN_number=form_org_info.cleaned_data['INN_number']).first()
-            if existing_info:
-                instance_org_info = existing_info
-            else:
-                instance_org_info = form_org_info.save()
-
             existing_org_DL = Employers.objects.filter(name_boss=form_org_DL.cleaned_data['name_boss']).first()
             if existing_org_DL:
                 instance_org_DL = existing_org_DL
             else:
                 instance_org_DL = form_org_DL.save()
-
+                
             existing_org_Con = Contacts.objects.filter(phone=form_org_Con.cleaned_data['phone']).first()
             if existing_org_Con:
                 instance_org_Con = existing_org_Con
@@ -90,18 +84,18 @@ def checkadd(request):
                 instance_org_Con = form_org_Con.save()
             instance_NDS = form_NDS.save()
 
-            if existing_info: #повторная проверка специально чтобы не перегружать код
-                # Если организация с таким ИНН и названием уже есть
-                org = Organization.objects.filter(ID_information=existing_info).first()
+            existing_info = Organization_info.objects.filter(INN_number=form_org_info.cleaned_data['INN_number'], org_name=form_org_info.cleaned_data['org_name']).first()
+            if existing_info:
+                instance_org_info = existing_info
+                org = Organization.objects.filter(ID_information=instance_org_info).first()
                 user_org_link = User_Organization.objects.filter(user=request.user, organization = org).exists()
                 if not user_org_link:
                     User_Organization.objects.create(
                     user=request.user,
                     organization=org
                 )
-
             else:
-                # Если нет — создаём новую
+                instance_org_info = form_org_info.save()
                 org = form_org.save(commit=False)
                 org.ID_information = instance_org_info
                 org.ID_employers = instance_org_DL
@@ -122,17 +116,34 @@ def checkadd(request):
             org_for_bank.save()
 
             #сохраняем покупателя/контрагента
-            buy_tab = form_counter.save()
-            User_Counterparty.objects.create(
-            user = request.user,
-            counterparty=buy_tab
-            )
-
-            existing_info_buy = Organization_info.objects.filter(INN_number=form_buy_info.cleaned_data['INN_number']).first()
+            # buy_tab = form_counter.save()
+            # User_Counterparty.objects.create(
+            # user = request.user,
+            # counterparty=buy_tab
+            # )
+            usl_name = form_counter.cleaned_data.get('USL_name')
+            existing_info_buy = Organization_info.objects.filter(INN_number=form_buy_info.cleaned_data['INN_number'], org_name=form_buy_info.cleaned_data['org_name']).first()
             if existing_info_buy:
                 instance_buy_info = existing_info_buy
+                client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
+                if client_ex:
+                    buy_tab = client_ex
+                    existsorgC = Counterparty_Organization.objects.filter(ID_Counterparty = buy_tab, ID_Organization=org)
+                    if existsorgC is None:
+                        buy_tab = form_counter.save()
+                        Counterparty_Organization.objects.create(
+                            ID_Counterparty=buy_tab,
+                            ID_Organization=org
+                        )
+                else:
+                    buy_tab = form_counter.save()
             else:
                 instance_buy_info = form_buy_info.save()
+                buy_tab = form_counter.save()
+                User_Counterparty.objects.create(
+                user = request.user,
+                counterparty=buy_tab
+                )
 
             existing_org_Con_buy = Contacts.objects.filter(phone=form_buy_Con.cleaned_data['phone']).first()
             if existing_org_Con_buy:

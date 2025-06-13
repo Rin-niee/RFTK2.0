@@ -302,7 +302,6 @@ def clientsadd(request):
 
             if all(form.is_valid() for form in forms_to_validate):
                 try:
-                    counterparty = client_form.save()
                     #проверка существования должностного лица
                     existing_org_DL = Employers.objects.filter(name_boss=formDL.cleaned_data['name_boss']).first()
                     if existing_org_DL:
@@ -315,7 +314,6 @@ def clientsadd(request):
                         contacts_instance = existing_org_Con
                     else:
                         contacts_instance = formCon.save()
-
                     usl_name = client_form.cleaned_data.get('USL_name')
                     if counterparty_type == 'org':
                         #проверяем, существует ли такая информация
@@ -332,10 +330,13 @@ def clientsadd(request):
                                 counterparty = client_ex
                                 existsorgC = Counterparty_Organization.objects.filter(ID_Counterparty = counterparty, ID_Organization=org)
                                 if existsorgC is None:
+                                    counterparty = client_form.save()
                                     Counterparty_Organization.objects.create(
                                         ID_Counterparty=counterparty,
                                         ID_Organization=org
                                     )
+                            else:
+                                counterparty = client_form.save()
                             #связь организации и контрагента
                             counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=counterparty, ID_Organization = org).exists()
                             if not counter_org_link:
@@ -353,6 +354,8 @@ def clientsadd(request):
                             )
 
                         else:
+                            counterparty = client_form.save()
+
                             org_plus = Organization.objects.create(
                                 ID_information = instance_org_info,
                                 ID_employers = employers_instance,
@@ -377,16 +380,18 @@ def clientsadd(request):
                             privite_instance = Privite.save()
                         if privite_namee:
                             Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_namee).first()
-                            client_ex = Counterparty.objects.filter(USL_name=isl_name).first()
+                            client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
                             if client_ex:
                                 counterparty = client_ex
                                 existsorgC = Counterparty_privite.objects.filter(ID_Counterparty = counterparty, ID_Privite_FaceCounter=Priv)
                                 if existsorgC is None:
+                                    counterparty = client_form.save()
                                     Counterparty_privite.objects.create(
                                         ID_Counterparty=counterparty,
                                         ID_Privite_FaceCounter=Priv
                                     )
-
+                                else:
+                                    counterparty = client_form.save()
                             Counterparty_privite.objects.create(
                                 ID_Counterparty=counterparty,
                                 ID_Privite_FaceCounter=Priv
@@ -396,6 +401,7 @@ def clientsadd(request):
                                 counterparty=counterparty
                             )
                         else:
+                            counterparty = client_form.save()
                             priv_1= Privite_FaceCounter.objects.create(
                                 ID_employers=employers_instance,
                                 ID_contacts=contacts_instance,
@@ -462,7 +468,7 @@ def clientsid(request, id):
     contacts_instance = sub_instance.ID_contacts
 
     try:
-        client_bank_instance = Counterparty_bank.objects.get(ID_Counterparty=client)
+        client_bank_instance = Counterparty_bank.objects.filter(ID_Counterparty=client).first()
         bank_instance = client_bank_instance.ID_bank
     except Counterparty_bank.DoesNotExist:
         client_bank_instance = None
