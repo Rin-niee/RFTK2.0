@@ -4,8 +4,9 @@
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 <div class="header">
     <h1 class = 'header-h1'><a>Документы и бланки онлайн</a></h1>
-    {% if user.is_authenticated %}
+    
     <p class = 'block-login'>
+        {% if user.is_authenticated %}
         <a href="{% url 'index' %}" class ='header-link'>Главная</a>
         <a href="{% url 'profile' %}" class ='header-link'>Личный кабинет</a>
         <a href="{% url 'check' %}" class ='header-link'>Документы</a>
