@@ -10,20 +10,21 @@
 <body>
 {% include 'header.html' %}
 <h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> Контрагенты</h1>
-
-<div class ='find-create'>
-<form method="get" action="{% url 'clients' %}">
-    <input type="text" name="q" value="{{ request.GET.q }}">
-    <button class = 'add_button' type="submit">Поиск</button>
-</form>
-<button class = 'add_button'><a href = "{% url 'clientsadd' %}">➕💼 Добавить нового контрагента</a></button>
+<div class = 'info'>
+    <div class ='find-create'>
+    <form class='poisk' method="get" action="{% url 'clients' %}">
+        <input type="text" name="q" value="{{ request.GET.q }}">
+        <button class = 'add_button' type="submit">Поиск</button>
+    </form>
+    <button class = 'add_button'><a href = "{% url 'clientsadd' %}">➕💼 Добавить нового контрагента</a></button>
+    </div>
+    <h2> 
+        {% if query %}Результаты поиска "{{ query }}" 
+        {% else %}Список созданных контрагентов{% endif %}
+    </h2>
 </div>
-<h2> 
-    {% if query %}Результаты поиска "{{ query }}" 
-    {% else %}Список созданных контрагентов{% endif %}
-</h2>
 
-<ul>
+
 <div class='clients-container'>
     {% for client in clients_query_q|default:clients %}
         <div class='clients-block'>
@@ -36,9 +37,8 @@
             <p>Условное наименование: {{ client.usl_name }}</p>
         </div>
     {% empty %}
-        <li>{% if query %}Ничего не найдено{% else %}Контрагентов нет{% endif %}</li>
+        <p>{% if query %}Ничего не найдено{% else %}Контрагентов нет{% endif %}</p>
     {% endfor %}
 </div>
-</ul>
 </body>
 </html>

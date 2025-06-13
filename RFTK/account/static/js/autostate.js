@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('id_name_kass').value = data.name_kass;
                     document.getElementById('id_USL_name').value = data.usl_name;
                 } if (data.type === 'ind') {//подставляем данные для частной организации
-
+                    
                     document.getElementById('id_priv_name').value = data.full_name;
                     document.getElementById('id_priv_adress').value = data.address;
                     document.getElementById('id_passport').value = data.passport;

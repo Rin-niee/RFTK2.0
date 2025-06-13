@@ -11,12 +11,13 @@
 {% include 'header.html' %}
 <h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> Организации</h1>
 
-<div class ='find-create'><form method="get" action="{% url 'org' %}">
+<div class = 'info'>
+<div class ='find-create'><form  class='poisk' method="get" action="{% url 'org' %}">
     <input type="text" name="q" value="{{ request.GET.q }}">
     <button class = 'add_button' type="submit">Поиск</button>
 </form> <button class = 'add_button'><a href = "{% url 'orgadd' %}">➕💼 Добавить организацию</a></button></div>
 <h2> Список моих организаций</h2>
-<ul>
+</div>
 <div class = 'clients-container'>
     {% for org in org_found|default:orgs %}
       <div class = 'clients-block'>
@@ -27,9 +28,8 @@
       </div>
 
   {% empty %}
-    <li>Организаций нет</li>
+    <p>Организаций нет</p>
   {% endfor %}
 </div>
-</ul>
 </body>
 </html>

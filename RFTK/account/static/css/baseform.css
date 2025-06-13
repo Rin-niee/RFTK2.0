@@ -9,7 +9,7 @@
     flex-wrap: wrap;
 }
 
-input:not(#id_check_num):not(#id_check_date):not(#id_type_0):not(#id_type_1):not(#id_IP_fact):not(#id_nds_status_0):not(#id_nds_status_1):not(#id_nds_status_2){
+input:not(#id_discount_size):not(#id_discount_fact):not(#id_consignee_status_0):not(#id_consignee_status_1):not(#id_check_num):not(#id_check_date):not(#id_type_0):not(#id_type_1):not(#id_IP_fact):not(#id_nds_status_0):not(#id_nds_status_1):not(#id_nds_status_2){
    width: 70%;
 
 }
@@ -105,4 +105,75 @@ label{
     appearance: none;
     background: transparent;
     cursor: pointer;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+thead tr {
+    background-color: #4a90e2;
+    color: white;
+    text-align: left;
+    font-weight: 600;
+    border: 2px solid #4350ab;
+}
+thead th {
+    user-select: none;
+    text-align: center;
+    font-size: 12px;
+    border: 2px solid #4350ab;
+}
+
+tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s ease;
+}
+
+tbody td {
+    padding: 2px 5px;
+    vertical-align: middle;
+}
+
+button.delete-row, button.add-goods {
+    cursor: pointer;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    transition: background-color 0.3s ease;
+    user-select: none;
+}
+
+button.delete-row {
+    background-color: #ff4c4c;
+    color: white;
+}
+
+button.delete-row:hover {
+    background-color: #e04343;
+}
+
+button.add-goods {
+    background-color: #4caf50;
+    color: white;
+}
+
+button.add-goods:hover {
+    background-color: #449d48;
+}
+
+
+#id_nds_status{
+   display: flex;
+    margin: 10px 10px 10px 0px;
 }

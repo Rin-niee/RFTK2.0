@@ -121,6 +121,7 @@ def orgadd(request):
         'bformset': bformset,
         'obformset': obformset,
         'bank_pairs': bank_pairs,
+        'is_edit': False,
     }
     return render(request, 'account/org.html', context)
 
@@ -205,6 +206,7 @@ def orgid(request, id):
         'bformset': bformset,
         'obformset': obformset,
         'bank_pairs': bank_pairs,
+        'is_edit': True,
     }
 
     return render(request, 'account/org.html', context)
@@ -314,6 +316,7 @@ def clientsadd(request):
                     else:
                         contacts_instance = formCon.save()
 
+                    usl_name = client_form.cleaned_data.get('USL_name')
                     if counterparty_type == 'org':
                         #проверяем, существует ли такая информация
                         existing_info = Organization_info.objects.filter(INN_number=formORGINF.cleaned_data['INN_number'], org_name=formORGINF.cleaned_data['org_name']).first()
@@ -321,11 +324,18 @@ def clientsadd(request):
                             instance_org_info = existing_info
                         else:
                             instance_org_info = formORGINF.save()
-
                         #если да,просто  подставляем ключ(и проверяем, есть ли связка с контрагентом, если нет, делаем), если нет, создаем и создаем связанные ключи
                         if existing_info:
                             org = Organization.objects.filter(ID_information=existing_info).first()
-
+                            client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
+                            if client_ex:
+                                counterparty = client_ex
+                                existsorgC = Counterparty_Organization.objects.filter(ID_Counterparty = counterparty, ID_Organization=org)
+                                if existsorgC is None:
+                                    Counterparty_Organization.objects.create(
+                                        ID_Counterparty=counterparty,
+                                        ID_Organization=org
+                                    )
                             #связь организации и контрагента
                             counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=counterparty, ID_Organization = org).exists()
                             if not counter_org_link:
@@ -365,9 +375,17 @@ def clientsadd(request):
                             privite_instance = privite_namee
                         else:
                             privite_instance = Privite.save()
-
                         if privite_namee:
                             Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_namee).first()
+                            client_ex = Counterparty.objects.filter(USL_name=isl_name).first()
+                            if client_ex:
+                                counterparty = client_ex
+                                existsorgC = Counterparty_privite.objects.filter(ID_Counterparty = counterparty, ID_Privite_FaceCounter=Priv)
+                                if existsorgC is None:
+                                    Counterparty_privite.objects.create(
+                                        ID_Counterparty=counterparty,
+                                        ID_Privite_FaceCounter=Priv
+                                    )
 
                             Counterparty_privite.objects.create(
                                 ID_Counterparty=counterparty,

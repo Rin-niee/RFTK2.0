@@ -285,6 +285,7 @@ def checkadd(request):
         'form_cons_client': form_cons_client,
         'form_additionally': form_additionally,
         'gformset': gformset,
+        'is_edit': False,
     }
 
     return render(request, 'documents/checkid.html', context)
@@ -489,6 +490,7 @@ def checkid(request, id):
         'form_cons_client': form_cons_client,
         'form_additionally': form_additionally,
         'gformset': gformset,
+        'is_edit': True,
     }
     return render(request, 'documents/checkid.html', context)
 

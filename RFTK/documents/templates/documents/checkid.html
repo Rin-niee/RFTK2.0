@@ -6,11 +6,13 @@
     <title>Счет</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/baseform.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/basedoc.css' %}"> -->
 </head>
 <body>
 {% include 'header.html' %}
 <form method="post">
         {% csrf_token %}
+            <h1 class = 'main-header'><a  href = "{% url 'profile' %}">Личный кабинет</a> -> <a  href = "{% url 'check' %}"> Документы </a> -> {% if is_edit %} Редактировать документ {% else %} Добавить новый документ {% endif %}</h1>
         <div class = 'boxie'>
         <h1 class="counter_name">Счет на оплату № {{form_check.check_num}} от {{form_check.check_date}}</h1>
     </div>
@@ -48,50 +50,47 @@
             </div>
             <div class = 'boxie'>
                 <h1 class="counter_name">Покупатель</h1>
-                    <p>{{form_buy_info.org_name.label_tag}}{{form_buy_info.org_name}}</p>
-                    <p>{{form_buy_info.INN_number.label_tag}}{{form_buy_info.INN_number}}</p>
-                    <p>{{form_buy_info.KPP.label_tag}}{{form_buy_info.KPP}}</p>
-                    <p>{{form_buy_info.OGRN.label_tag}}{{form_buy_info.OGRN}}</p>
-                    <p>{{form_buy_Con.phone.label_tag}}{{form_buy_Con.phone}}</p>
-                    <p>{{form_buy_Con.fax.label_tag}}{{form_buy_Con.fax}}</p>
-                    <h1>Банковские реквизиты покупателя</h1>
-                    <p>{{form_buy_bank.bank_name.label_tag}}{{form_buy_bank.bank_name}}</p>
-                    <p>{{form_buy_bank.bank_adress.label_tag}}{{form_buy_bank.bank_adress}}</p>
-                    <p>{{form_buy_bank.KS.label_tag}}{{form_buy_bank.KS}}</p>
-                    <p>{{form_buy_for_bank.RS.label_tag}}{{form_buy_for_bank.RS}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_info.org_name.label_tag}}{{form_buy_info.org_name}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_info.INN_number.label_tag}}{{form_buy_info.INN_number}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_info.KPP.label_tag}}{{form_buy_info.KPP}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_info.OGRN.label_tag}}{{form_buy_info.OGRN}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_Con.phone.label_tag}}{{form_buy_Con.phone}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_Con.fax.label_tag}}{{form_buy_Con.fax}}</p>
+                    <h1 class="counter_name">Банковские реквизиты покупателя</h1>
+                    <p class = 'form-fieldc'>{{form_buy_bank.bank_name.label_tag}}{{form_buy_bank.bank_name}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_bank.bank_adress.label_tag}}{{form_buy_bank.bank_adress}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_bank.KS.label_tag}}{{form_buy_bank.KS}}</p>
+                    <p class = 'form-fieldc'>{{form_buy_for_bank.RS.label_tag}}{{form_buy_for_bank.RS}}</p>
             </div>
-        
-            <h1>Грузополучатель</h1>
-            <p>{{form_consignee.consignee_status}}</p>
-            <div  class = 'boxie' id="consignee-info-block">
-                <div>
-                <p>{{form_cons_info.org_name.label_tag}}{{form_cons_info.org_name}}</p>
-                <p>{{form_cons_info.INN_number.label_tag}}{{form_cons_info.INN_number}}</p>
-                <p>{{form_cons_info.KPP.label_tag}}{{form_cons_info.KPP}}</p>
-                <p>{{form_cons_info.OGRN.label_tag}}{{form_cons_info.OGRN}}</p>
-                <p>{{form_cons_Con.phone.label_tag}}{{form_cons_Con.phone}}</p>
-                <p>{{form_cons_Con.fax.label_tag}}{{form_cons_Con.fax}}</p>
+            <div  class = 'boxie'>
+                <h1 class="counter_name">Грузополучатель</h1>
+                <p class = 'form-fieldc'>{{form_consignee.consignee_status}}</p>
+                <div id="consignee-info-block">
+                    <p class = 'form-fieldc'>{{form_cons_info.org_name.label_tag}}{{form_cons_info.org_name}}</p>
+                    <p class = 'form-fieldc'>{{form_cons_info.INN_number.label_tag}}{{form_cons_info.INN_number}}</p>
+                    <p class = 'form-fieldc'>{{form_cons_info.KPP.label_tag}}{{form_cons_info.KPP}}</p>
+                    <p class = 'form-fieldc'>{{form_cons_info.OGRN.label_tag}}{{form_cons_info.OGRN}}</p>
+                    <p class = 'form-fieldc'>{{form_cons_Con.phone.label_tag}}{{form_cons_Con.phone}}</p>
+                    <p class = 'form-fieldc'>{{form_cons_Con.fax.label_tag}}{{form_cons_Con.fax}}</p>
                 </div>
             </div>
         
-            <h1>Дополнительно</h1>
-            <div class = 'boxie'>
-                <div>
-                    <p>{{form_additionally.Purpose.label_tag}}{{form_additionally.Purpose}}</p>
-                    <p>{{form_additionally.Payfor.label_tag}}{{form_additionally.Payfor}}</p>
-                    <p>{{form_additionally.Agreement.label_tag}}{{form_additionally.Agreement}}</p>
-                    <p>{{form_NDS.nds_stavka}}</p>
-                    <p>{{form_NDS.nds_status}}</p>
-                    <p>{{form_additionally.additionally_status.label_tag}}{{form_additionally.additionally_status}}</p>
-                    <p>{{form_additionally.currency.label_tag}}{{form_additionally.currency}}</p>
-                    <p>{{form_additionally.discount_fact.label_tag}}{{form_additionally.discount_fact}}</p>
-                    <p>{{form_additionally.discount_size}}</p>
-                </div>
-            </div>
-        
-            <h1>Товары</h1>
             
+            <div class = 'boxie'>
+                <h1 class="counter_name">Дополнительно</h1>
+                <p class = 'form-fieldc'>{{form_additionally.Purpose.label_tag}}{{form_additionally.Purpose}}</p>
+                <p class = 'form-fieldc'>{{form_additionally.Payfor.label_tag}}{{form_additionally.Payfor}}</p>
+                <p class = 'form-fieldc'>{{form_additionally.Agreement.label_tag}}{{form_additionally.Agreement}}</p>
+                <div class="select-one">{{form_NDS.nds_stavka}}</div>
+                {{form_NDS.nds_status}}
+                <p>{{form_additionally.additionally_status.label_tag}}{{form_additionally.additionally_status}}</p>
+                <p>{{form_additionally.currency.label_tag}}{{form_additionally.currency}}</p>
+                <p>{{form_additionally.discount_fact.label_tag}}{{form_additionally.discount_fact}}</p>
+                <p class = 'form-fieldc'>{{form_additionally.discount_size}}</p>
+            </div>
+            <!--   -->
             <div class = 'boxie' id="goods-forms">
+            <!-- <h1 class="counter_name">Товары</h1> -->
             <table>
                 <thead>
                     <tr>
@@ -132,7 +131,7 @@
                 </tbody>
             </table>
     </div>
-        <button type="submit">Сохранить</button>
+        <div class ='butt-add-0'><button type="submit" class = 'add_button'>Сохранить</button></div>
     </form>
     <script src="{% static 'js/autostateprg.js' %}"></script>
     <script src="{% static 'js/autobuy.js' %}"></script>
