@@ -1,0 +1,20 @@
+.header{
+    display: flex;
+    justify-content: space-between;
+    background: #3999c3fc;
+    padding: 0px 15px 0px 15px;
+    /* font-size: 25px; */
+}
+
+.header-link {
+  margin-left: 10px;
+}
+
+.block-login{
+color: white;
+font-size: 20px;
+}
+
+.header-h1{
+    color: white;
+}

@@ -1,0 +1,179 @@
+.boxie{
+    display: flex;
+    margin: 20px;
+    background: #30c0c8;
+    border-radius: 10px;
+    padding: 30px 30px 30px 30px;
+    border-color: #30c0c8;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+input:not(#id_discount_size):not(#id_discount_fact):not(#id_consignee_status_0):not(#id_consignee_status_1):not(#id_check_num):not(#id_check_date):not(#id_type_0):not(#id_type_1):not(#id_IP_fact):not(#id_nds_status_0):not(#id_nds_status_1):not(#id_nds_status_2){
+   width: 70%;
+
+}
+
+#id_type{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.counter_name{
+    color: white;
+}
+label{
+    color: white;
+}
+
+.form-fieldc{
+    display: flex;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    flex-wrap: wrap;
+    margin:5px;
+}
+
+.butt{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.select-pair {
+    display: flex;
+    width: fit-content;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin:20px;
+}
+
+.select-pair select {
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.select-pair select:first-child {
+    border-right: 1px solid #ccc;
+}
+
+.select-pair select:last-child {
+    border-left: 1px solid transparent; 
+}
+
+/* .select-pair select:focus {
+    background-color: #f3f3f3;
+} */
+
+.bank-form{
+    border: 2px solid white;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    padding: 15px;
+}
+
+.butt-add-0{
+    margin:20px;
+}
+
+.select-one {
+    display: flex;
+    width: fit-content;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.select-one select {
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+thead tr {
+    background-color: #4a90e2;
+    color: white;
+    text-align: left;
+    font-weight: 600;
+    border: 2px solid #4350ab;
+}
+thead th {
+    user-select: none;
+    text-align: center;
+    font-size: 12px;
+    border: 2px solid #4350ab;
+}
+
+tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s ease;
+}
+
+tbody td {
+    padding: 2px 5px;
+    vertical-align: middle;
+}
+
+button.delete-row, button.add-goods {
+    cursor: pointer;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    transition: background-color 0.3s ease;
+    user-select: none;
+}
+
+button.delete-row {
+    background-color: #ff4c4c;
+    color: white;
+}
+
+button.delete-row:hover {
+    background-color: #e04343;
+}
+
+button.add-goods {
+    background-color: #4caf50;
+    color: white;
+}
+
+button.add-goods:hover {
+    background-color: #449d48;
+}
+
+
+#id_nds_status{
+   display: flex;
+    margin: 10px 10px 10px 0px;
+}

@@ -1,0 +1,26 @@
+body{
+    margin: 0px;
+    /* background: red; */
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+.main-header
+{
+    background: #353be9;
+    color: white;
+    padding: 15px;
+    margin: 0px;
+    font-size: 30px;
+}
+
+.add_button{
+    color: white;
+    background-color: #279da8;
+    padding: 10px;
+    border-radius: 10px;
+    border: 0px;
+}
