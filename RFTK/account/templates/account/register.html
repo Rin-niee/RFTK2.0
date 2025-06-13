@@ -1,8 +1,30 @@
-<h2>Регистрация</h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/baseform.css' %}">
+</head>
+<body>
+{% include 'header.html' %}
+<h1 class = 'main-header'>Регистрация</h1>
+<div class = 'boxie'>
 <form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Зарегистрироваться</button>
+    <p class = 'form-fieldc'><label>Логин</label> {{form.username}}</p>
+    <p class = 'form-fieldc'><label>Email</label> {{form.email}}</p>
+    <p class = 'form-fieldc'><label>Пароль</label> {{form.password1}}</p>
+    <p class = 'form-fieldc'><label>Подтверждение пароля</label> {{form.password2}}</p>
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    <div class = 'reglog_butt'>
+    <button type="submit" class = 'add_button'>Зарегистрироваться</button>
+    <p><label>Уже есть аккаунт?</label>   <a href="{% url 'login' %}"><button class = 'add_button'>Войдите</button></a></p>
+</div>
 </form>
-
-<p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a></p>
+</div>
+</body>
+</html>

@@ -177,3 +177,9 @@ button.add-goods:hover {
    display: flex;
     margin: 10px 10px 10px 0px;
 }
+
+.reglog_butt{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
