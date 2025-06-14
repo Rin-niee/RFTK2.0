@@ -211,9 +211,6 @@ def orgid(request, id):
 
     return render(request, 'account/org.html', context)
 
-
-
-
 #страничка контрагентов
 def clients(request):
     related_ids = User_Counterparty.objects.filter(user=request.user).values_list('counterparty', flat=True)
@@ -288,74 +285,107 @@ def clientsadd(request):
         formCon = ContactsForm(request.POST)
         bform = bank_rForm(request.POST)
         obform = Counterparty_bankForm(request.POST)
-
+        counterparty = None
         if client_form.is_valid():
             counterparty_type = client_form.cleaned_data['type']
+            print('type!!!', counterparty_type)
             if counterparty_type == 'org':
                 formORGINF = Org_infoForm(request.POST)
-                forms_to_validate = [formORGINF, formDL, formCon, bform, client_form, obform]
+                forms_to_validate = [formORGINF, formDL, formCon, client_form, bform,  obform]
             elif counterparty_type == 'ind':
                 Privite = Privite_Form(request.POST)
-                forms_to_validate = [Privite, formDL, formCon, bform, client_form, obform]
+                forms_to_validate = [Privite, formDL, formCon,client_form, bform,  obform]
             else:
                 forms_to_validate = []
-
+            counterparty = None
             if all(form.is_valid() for form in forms_to_validate):
                 try:
+                    # print('ПРОВЕРКА!!!!!!!')
+                    
                     #проверка существования должностного лица
                     existing_org_DL = Employers.objects.filter(name_boss=formDL.cleaned_data['name_boss']).first()
                     if existing_org_DL:
                         employers_instance = existing_org_DL
                     else:
                         employers_instance = formDL.save()
+
                     #проверка существования контактов
                     existing_org_Con = Contacts.objects.filter(phone=formCon.cleaned_data['phone']).first()
                     if existing_org_Con:
                         contacts_instance = existing_org_Con
                     else:
                         contacts_instance = formCon.save()
+
                     usl_name = client_form.cleaned_data.get('USL_name')
+                    # print(usl_name)
+                    # counterparty = None
                     if counterparty_type == 'org':
                         #проверяем, существует ли такая информация
                         existing_info = Organization_info.objects.filter(INN_number=formORGINF.cleaned_data['INN_number'], org_name=formORGINF.cleaned_data['org_name']).first()
                         if existing_info:
                             instance_org_info = existing_info
-                        else:
-                            instance_org_info = formORGINF.save()
-                        #если да,просто  подставляем ключ(и проверяем, есть ли связка с контрагентом, если нет, делаем), если нет, создаем и создаем связанные ключи
-                        if existing_info:
                             org = Organization.objects.filter(ID_information=existing_info).first()
-                            client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
-                            if client_ex:
-                                counterparty = client_ex
-                                existsorgC = Counterparty_Organization.objects.filter(ID_Counterparty = counterparty, ID_Organization=org)
-                                if existsorgC is None:
+                            # print(org.ID_information, org.ID_employers, org.ID_contacts)
+                            if org:
+                                client_ex = Counterparty.objects.filter(USL_name=usl_name)
+                                # print('AAAAAAAAAAAAAAAAAAAAAAA',client_ex)
+                                if client_ex.exists():
+                                    exists_relation = Counterparty_Organization.objects.filter(
+                                        ID_Organization=org,
+                                        ID_Counterparty__in=client_ex.values_list('id', flat=True)
+                                    ).exists()
+                                    if exists_relation:
+                                        relation = Counterparty_Organization.objects.filter(
+                                                ID_Organization=org,
+                                                ID_Counterparty__in=client_ex.values_list('id', flat=True)
+                                            ).first()
+                                        counterparty = relation.ID_Counterparty
+                                    # print('я тебя аааааааа просто', exists_relation)
+                                    if not exists_relation:
+                                        # print('ДА ТЫ ЗАКОЛЕБАЛ')
+                                        counterparty = client_form.save()
+                                        Counterparty_Organization.objects.create(
+                                            ID_Counterparty=counterparty,
+                                            ID_Organization=org
+                                        )
+                                else:
+                                    # print('ты пошел сюда?')
                                     counterparty = client_form.save()
                                     Counterparty_Organization.objects.create(
-                                        ID_Counterparty=counterparty,
-                                        ID_Organization=org
+                                            ID_Counterparty=counterparty,
+                                            ID_Organization=org
+                                        )
+                                    user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
+                                    if not user_counter_link:
+                                        User_Counterparty.objects.create(
+                                        user=request.user,
+                                        counterparty=counterparty
                                     )
                             else:
+                                org=Organization.objects.create(
+                                    ID_information = instance_org_info,
+                                    ID_employers = employers_instance,
+                                    ID_contacts = contacts_instance
+                                )
                                 counterparty = client_form.save()
-                            #связь организации и контрагента
-                            counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=counterparty, ID_Organization = org).exists()
-                            if not counter_org_link:
-                                Counterparty_Organization.objects.create(
-                                ID_Counterparty=counterparty,
-                                ID_Organization=org
-                            )
-                                
-                            #связь контрагента и пользователя
-                            user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
-                            if not user_counter_link:
-                                User_Counterparty.objects.create(
-                                user=request.user,
-                                counterparty=counterparty
-                            )
-
+                                #связь организации и контрагента
+                                counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=counterparty, ID_Organization = org).exists()
+                                if not counter_org_link:
+                                    Counterparty_Organization.objects.create(
+                                    ID_Counterparty=counterparty,
+                                    ID_Organization=org
+                                )
+                                    
+                                #связь контрагента и пользователя
+                                user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
+                                if not user_counter_link:
+                                    User_Counterparty.objects.create(
+                                    user=request.user,
+                                    counterparty=counterparty
+                                )
                         else:
+                            instance_org_info = formORGINF.save()
                             counterparty = client_form.save()
-
                             org_plus = Organization.objects.create(
                                 ID_information = instance_org_info,
                                 ID_employers = employers_instance,
@@ -371,61 +401,72 @@ def clientsadd(request):
                                 user=request.user,
                                 counterparty=counterparty
                             )
-                    #если частное лицо
+                    # если частное лицо
                     if counterparty_type == 'ind':
-                        privite_namee = Privite_face.objects.filter(priv_name=Privite.cleaned_data['priv_name']).first()
-                        if privite_namee:
-                            privite_instance = privite_namee
-                        else:
-                            privite_instance = Privite.save()
-                        if privite_namee:
-                            Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_namee).first()
-                            client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
-                            if client_ex:
-                                counterparty = client_ex
-                                existsorgC = Counterparty_privite.objects.filter(ID_Counterparty = counterparty, ID_Privite_FaceCounter=Priv)
-                                if existsorgC is None:
+                        privite_instance = Privite_face.objects.filter(priv_name=Privite.cleaned_data['priv_name']).first()
+                        
+                        if privite_instance:
+                            Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_instance).first()
+                            
+                            client_ex = Counterparty.objects.filter(USL_name=usl_name)
+                            
+                            if client_ex.exists() and Priv:
+                                exists_relation = Counterparty_privite.objects.filter(
+                                    ID_Privite_FaceCounter=Priv,
+                                    ID_Counterparty__in=client_ex.values_list('id', flat=True)
+                                ).exists()
+                                
+                                if not exists_relation:
                                     counterparty = client_form.save()
                                     Counterparty_privite.objects.create(
-                                        ID_Counterparty=counterparty,
-                                        ID_Privite_FaceCounter=Priv
+                                        ID_Privite_FaceCounter=Priv,
+                                        ID_Counterparty=counterparty
                                     )
                                 else:
-                                    counterparty = client_form.save()
-                            Counterparty_privite.objects.create(
-                                ID_Counterparty=counterparty,
-                                ID_Privite_FaceCounter=Priv
-                            )
-                            User_Counterparty.objects.create(
-                                user = request.user,
-                                counterparty=counterparty
-                            )
+                                    counterparty = client_ex.first()
+                            else:
+                                # Если Priv нет, создаём новую запись
+                                counterparty = client_form.save()
+                                if not Priv:
+                                    Priv = Privite_FaceCounter.objects.create(
+                                        ID_employers=employers_instance,
+                                        ID_contacts=contacts_instance,
+                                        ID_privite=privite_instance,
+                                    )
+                                Counterparty_privite.objects.create(
+                                    ID_Counterparty=counterparty,
+                                    ID_Privite_FaceCounter=Priv
+                                )
                         else:
+                            privite_instance = Privite.save()
                             counterparty = client_form.save()
-                            priv_1= Privite_FaceCounter.objects.create(
+                            Priv = Privite_FaceCounter.objects.create(
                                 ID_employers=employers_instance,
                                 ID_contacts=contacts_instance,
                                 ID_privite=privite_instance,
                             )
                             Counterparty_privite.objects.create(
                                 ID_Counterparty=counterparty,
-                                ID_Privite_FaceCounter=priv_1
+                                ID_Privite_FaceCounter=Priv
                             )
+                        
+                        # Связываем пользователя и контрагента (в любом случае)
+                        user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty=counterparty).exists()
+                        if not user_counter_link:
                             User_Counterparty.objects.create(
-                                user = request.user,
+                                user=request.user,
                                 counterparty=counterparty
-                            )
+                            )    
                 except Exception as e:
                     print(f"Ошибка при создании: {e}")
-                bank_instance = bform.save()
-
-                ob_instance = obform.save(commit=False)
-                ob_instance.ID_Counterparty = counterparty
-                ob_instance.ID_bank = bank_instance
-                ob_instance.save()
+                if counterparty:
+                    bank_instance = bform.save()
+                    ob_instance = obform.save(commit=False)
+                    ob_instance.ID_Counterparty = counterparty
+                    ob_instance.ID_bank = bank_instance
+                    ob_instance.save()
 
                 return redirect('clients')
-
     else:
         formORGINF = Org_infoForm()
         formDL = EmployersForm()
