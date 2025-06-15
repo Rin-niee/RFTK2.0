@@ -24,9 +24,11 @@ def check(request):
 
 GoodsFormSet = modelformset_factory(Goods, form=GoodsForm, extra=1)
 
+
 def checkadd(request):
     if request.method == 'POST':
         form_check = CheckForm(request.POST)
+
         #информация об организации(все оформляется в организацию)
         form_org_info = Org_infoForm(request.POST)
         form_org_DL = EmployersForm(request.POST)
@@ -37,7 +39,7 @@ def checkadd(request):
         form_org_bank = bank_rForm(request.POST) 
         form_org_for_bank = organization_bankForm(request.POST)
         
-        # #информация об покупателе(все оформляется в контрагента)
+        #информация об покупателе(все оформляется в контрагента)
         form_buy_info = Org_infoForm(request.POST, prefix="buy")
         form_buy_Con = ContactsForm(request.POST, prefix="buy")
 
@@ -47,7 +49,7 @@ def checkadd(request):
         form_buy_bank = bank_rForm(request.POST, prefix="buy")
         form_buy_for_bank = Counterparty_bankForm(request.POST, prefix="buy")
         
-        # #информация об грузоперевозчике(все оформляется в контагента, если пусто)
+        #информация об грузоперевозчике(все оформляется в контагента, если пусто)
         form_consignee = ConsigneeForm(request.POST)
         form_cons_info = Org_infoForm(request.POST, prefix="cons")
         form_cons_Con = ContactsForm(request.POST, prefix="cons")
@@ -66,7 +68,8 @@ def checkadd(request):
         form_org_bank, form_org_for_bank, 
         form_buy_info, form_buy_Con, form_org_counter, form_counter, 
         form_buy_bank, form_buy_for_bank,
-        form_consignee, form_cons_client, form_additionally, gformset]
+        form_consignee, form_cons_client, form_additionally, gformset
+        ]
            
 
         if all(form.is_valid() for form in all_forms):
@@ -76,7 +79,7 @@ def checkadd(request):
                 instance_org_DL = existing_org_DL
             else:
                 instance_org_DL = form_org_DL.save()
-                
+            
             existing_org_Con = Contacts.objects.filter(phone=form_org_Con.cleaned_data['phone']).first()
             if existing_org_Con:
                 instance_org_Con = existing_org_Con
@@ -88,12 +91,24 @@ def checkadd(request):
             if existing_info:
                 instance_org_info = existing_info
                 org = Organization.objects.filter(ID_information=instance_org_info).first()
-                user_org_link = User_Organization.objects.filter(user=request.user, organization = org).exists()
-                if not user_org_link:
+                if org:
+                    user_org_link = User_Organization.objects.filter(user=request.user, organization = org).exists()
+                    if not user_org_link:
+                        User_Organization.objects.create(
+                        user=request.user,
+                        organization=org
+                    )
+                else:
+                    org = form_org.save(commit=False)
+                    org.ID_information = instance_org_info
+                    org.ID_employers = instance_org_DL
+                    org.ID_contacts = instance_org_Con
+                    org.ID_NDS = instance_NDS
+                    org.save()
                     User_Organization.objects.create(
-                    user=request.user,
-                    organization=org
-                )
+                        user=request.user,
+                        organization=org
+                    )
             else:
                 instance_org_info = form_org_info.save()
                 org = form_org.save(commit=False)
@@ -102,6 +117,7 @@ def checkadd(request):
                 org.ID_contacts = instance_org_Con
                 org.ID_NDS = instance_NDS
                 org.save()
+                
                 User_Organization.objects.create(
                     user=request.user,
                     organization=org
@@ -115,70 +131,74 @@ def checkadd(request):
             org_for_bank.ID_bank = instance_org_bank
             org_for_bank.save()
 
-            #сохраняем покупателя/контрагента
-            # buy_tab = form_counter.save()
-            # User_Counterparty.objects.create(
-            # user = request.user,
-            # counterparty=buy_tab
-            # )
+            #Контрагента
             usl_name = form_counter.cleaned_data.get('USL_name')
             existing_info_buy = Organization_info.objects.filter(INN_number=form_buy_info.cleaned_data['INN_number'], org_name=form_buy_info.cleaned_data['org_name']).first()
-            if existing_info_buy:
-                instance_buy_info = existing_info_buy
-                client_ex = Counterparty.objects.filter(USL_name=usl_name).first()
-                if client_ex:
-                    buy_tab = client_ex
-                    existsorgC = Counterparty_Organization.objects.filter(ID_Counterparty = buy_tab, ID_Organization=org)
-                    if existsorgC is None:
-                        buy_tab = form_counter.save()
-                        Counterparty_Organization.objects.create(
-                            ID_Counterparty=buy_tab,
-                            ID_Organization=org
-                        )
-                else:
-                    buy_tab = form_counter.save()
-            else:
-                instance_buy_info = form_buy_info.save()
-                buy_tab = form_counter.save()
-                User_Counterparty.objects.create(
-                user = request.user,
-                counterparty=buy_tab
-                )
-
+            
             existing_org_Con_buy = Contacts.objects.filter(phone=form_buy_Con.cleaned_data['phone']).first()
             if existing_org_Con_buy:
                 instance_buy_Con = existing_org_Con_buy
             else:
                 instance_buy_Con = form_buy_Con.save()
-
-            # instance_NDS = form_NDS.save()
-
+            buy_tab = None
             if existing_info_buy:
+                instance_buy_info = existing_info_buy
                 org_buy = Organization.objects.filter(ID_information=existing_info_buy).first()
-                counter_org_link = Counterparty_Organization.objects.filter(ID_Counterparty=buy_tab, ID_Organization = org_buy).exists()
-                if not counter_org_link:
-                    Counterparty_Organization.objects.create(
-                    ID_Counterparty=buy_tab,
-                    ID_Organization=org_buy
-                )
-
+                if org_buy:
+                    ex_buy = Counterparty.objects.filter(USL_name=usl_name)
+                    if ex_buy.exists():
+                        buy_tab_relate = Counterparty_Organization.objects.filter(
+                            ID_Organization=org_buy,
+                            ID_Counterparty__in=ex_buy.values_list('id', flat=True)
+                        ).exists()
+                        if buy_tab_relate:
+                            relation = Counterparty_Organization.objects.filter(
+                                ID_Organization=org_buy,
+                                ID_Counterparty__in=ex_buy.values_list('id', flat=True)
+                            ).first()
+                            buy_tab = relation.ID_Counterparty
+                        if not buy_tab_relate:
+                            buy_tab = form_counter.save()
+                            Counterparty_Organization.objects.create(
+                                ID_Counterparty=buy_tab,
+                                ID_Organization=org_buy
+                            )
+                    else:
+                        buy_tab = form_counter.save()
+                        Counterparty_Organization.objects.create(
+                            ID_Counterparty=buy_tab,
+                            ID_Organization=org_buy
+                        )
+                        user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = buy_tab).exists()
+                        if not user_counter_link:
+                            User_Counterparty.objects.create(
+                            user=request.user,
+                            counterparty=buy_tab
+                        )
             else:
-                # Если нет — создаём новую
-                org_for_counter = form_org.save(commit=False)
-                org_for_counter.ID_information = instance_buy_info
-                org_for_counter.ID_contacts = instance_buy_Con
-                org_for_counter.save()
+                instance_buy_info = form_buy_info.save()
+                buy_info = Organization.objects.create(
+                    ID_information = instance_buy_info,
+                    ID_contacts = instance_buy_Con
+                )
+                buy_tab = form_counter.save()
+                
                 Counterparty_Organization.objects.create(
                     ID_Counterparty=buy_tab,
-                    ID_Organization=org_for_counter
+                    ID_Organization=buy_info
+                )
+                User_Counterparty.objects.create(
+                user = request.user,
+                counterparty=buy_tab
                 )
 
             #банковские данные для контрагента
-            instance_buy_bank = form_buy_bank.save()
-            buy_for_bank = form_buy_for_bank.save(commit=False)
-            buy_for_bank.ID_bank = instance_buy_bank
-            buy_for_bank.ID_Counterparty = buy_tab
-            buy_for_bank.save()
+            if buy_tab:
+                instance_buy_bank = form_buy_bank.save()
+                buy_for_bank = form_buy_for_bank.save(commit=False)
+                buy_for_bank.ID_bank = instance_buy_bank
+                buy_for_bank.ID_Counterparty = buy_tab
+                buy_for_bank.save()
 
             #грузоперевозчик
             consignee_status = form_consignee.cleaned_data.get('consignee_status')
@@ -191,11 +211,11 @@ def checkadd(request):
                     else:
                         instance_cons_info = form_cons_info.save()
 
-                    existing_consignee_contact = Contacts.objects.filter(phone=form_cons_info.cleaned_data['phone']).first()
+                    existing_consignee_contact = Contacts.objects.filter(phone=form_cons_Con.cleaned_data['phone']).first()
                     if existing_consignee_contact:
                         instance_cons_Con = existing_consignee_contact
                     else:
-                        instance_cons_Con = form_cons_info.save()
+                        instance_cons_Con = form_cons_Con.save()
 
                     cons_client = form_cons_client.save()
 
@@ -221,7 +241,7 @@ def checkadd(request):
                     instance_consignee.save()
 
 
-                    # instance_NDS = form_NDS.save()
+                    instance_NDS = form_NDS.save()
 
             if consignee_status == '0':
                 instance_consignee = form_consignee.save()
@@ -318,7 +338,7 @@ def checkid(request, id):
     counter_org = counter_counter.ID_Organization
     counter_info = counter_org.ID_information
     counter_con = counter_org.ID_contacts
-    counter_bank_links = Counterparty_bank.objects.get(ID_Counterparty=counterparty)
+    counter_bank_links = Counterparty_bank.objects.filter(ID_Counterparty=counterparty).first()
     counter_banks = bank_requisites.objects.get(id=counter_bank_links.ID_bank_id)
 
     consignee = check.ID_consignee
@@ -420,9 +440,8 @@ def checkid(request, id):
                     cons_org = Organization.objects.create(
                         ID_information=cons_info_obj,
                         ID_contacts=cons_con_obj,
-                        ID_Counterparty=cons_client_obj
                     )
-
+    
                     consignee_obj = form_consignee.save(commit=False)
                     consignee_obj.ID_Counterparty = cons_client_obj
                     consignee_obj.save()
@@ -597,7 +616,7 @@ def get_counterparty_details_for_counter(request):
         return JsonResponse({'error': 'Организация не найдена'}, status=404)
 
     # Привязка через Counterparty_Organization
-    counterparty_link = Counterparty_Organization.objects.filter(ID_Organization=org).select_related('ID_Counterparty').first()
+    counterparty_link = Counterparty_Organization.objects.filter(ID_Organization=org).select_related('ID_Counterparty').last()
     counterparty = counterparty_link.ID_Counterparty if counterparty_link else None
 
     # Если нет контрагента — fallback на organization_bank
