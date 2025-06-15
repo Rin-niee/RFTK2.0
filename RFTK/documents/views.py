@@ -616,7 +616,7 @@ def get_counterparty_details_for_counter(request):
         return JsonResponse({'error': 'Организация не найдена'}, status=404)
 
     # Привязка через Counterparty_Organization
-    counterparty_link = Counterparty_Organization.objects.filter(ID_Organization=org).select_related('ID_Counterparty').first()
+    counterparty_link = Counterparty_Organization.objects.filter(ID_Organization=org).select_related('ID_Counterparty').last()
     counterparty = counterparty_link.ID_Counterparty if counterparty_link else None
 
     # Если нет контрагента — fallback на organization_bank

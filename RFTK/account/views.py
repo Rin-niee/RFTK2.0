@@ -348,6 +348,7 @@ def clientsadd(request):
                                             ID_Counterparty=counterparty,
                                             ID_Organization=org
                                         )
+                                        user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
                                 else:
                                     # print('ты пошел сюда?')
                                     counterparty = client_form.save()
@@ -355,12 +356,6 @@ def clientsadd(request):
                                             ID_Counterparty=counterparty,
                                             ID_Organization=org
                                         )
-                                    user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
-                                    if not user_counter_link:
-                                        User_Counterparty.objects.create(
-                                        user=request.user,
-                                        counterparty=counterparty
-                                    )
                             else:
                                 org=Organization.objects.create(
                                     ID_information = instance_org_info,
@@ -374,14 +369,6 @@ def clientsadd(request):
                                     Counterparty_Organization.objects.create(
                                     ID_Counterparty=counterparty,
                                     ID_Organization=org
-                                )
-                                    
-                                #связь контрагента и пользователя
-                                user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
-                                if not user_counter_link:
-                                    User_Counterparty.objects.create(
-                                    user=request.user,
-                                    counterparty=counterparty
                                 )
                         else:
                             instance_org_info = formORGINF.save()
@@ -397,42 +384,45 @@ def clientsadd(request):
                                 ID_Organization=org_plus
                             )
 
-                            User_Counterparty.objects.create(
-                                user=request.user,
-                                counterparty=counterparty
-                            )
                     # если частное лицо
                     if counterparty_type == 'ind':
-                        privite_instance = Privite_face.objects.filter(priv_name=Privite.cleaned_data['priv_name']).first()
-                        
-                        if privite_instance:
-                            Priv = Privite_FaceCounter.objects.filter(ID_privite=privite_instance).first()
-                            
-                            client_ex = Counterparty.objects.filter(USL_name=usl_name)
-                            
-                            if client_ex.exists() and Priv:
-                                exists_relation = Counterparty_privite.objects.filter(
-                                    ID_Privite_FaceCounter=Priv,
-                                    ID_Counterparty__in=client_ex.values_list('id', flat=True)
-                                ).exists()
-                                
-                                if not exists_relation:
+                        ex_privite = Privite_face.objects.filter(priv_name=Privite.cleaned_data['priv_name']).first()
+                        if ex_privite:
+                            privite_instance = ex_privite
+                            Priv = Privite_FaceCounter.objects.filter(ID_privite=ex_privite).first()
+                            if Priv:
+                                client_ex = Counterparty.objects.filter(USL_name=usl_name)
+                                if client_ex.exists():
+                                    exists_relation = Counterparty_privite.objects.filter(
+                                        ID_Privite_FaceCounter=Priv,
+                                        ID_Counterparty__in=client_ex.values_list('id', flat=True)
+                                    ).exists()
+                                    if exists_relation:
+                                        relation = Counterparty_privite.objects.filter(
+                                                ID_Privite_FaceCounter=Priv,
+                                                ID_Counterparty__in=client_ex.values_list('id', flat=True)
+                                            ).first()
+                                        counterparty = relation.ID_Counterparty
+                                    if not exists_relation:
+                                        counterparty = client_form.save()
+                                        Counterparty_privite.objects.create(
+                                            ID_Privite_FaceCounter=Priv,
+                                            ID_Counterparty=counterparty
+                                        )
+                                else:
                                     counterparty = client_form.save()
                                     Counterparty_privite.objects.create(
                                         ID_Privite_FaceCounter=Priv,
                                         ID_Counterparty=counterparty
                                     )
-                                else:
-                                    counterparty = client_ex.first()
                             else:
                                 # Если Priv нет, создаём новую запись
                                 counterparty = client_form.save()
-                                if not Priv:
-                                    Priv = Privite_FaceCounter.objects.create(
-                                        ID_employers=employers_instance,
-                                        ID_contacts=contacts_instance,
-                                        ID_privite=privite_instance,
-                                    )
+                                Priv = Privite_FaceCounter.objects.create(
+                                    ID_employers=employers_instance,
+                                    ID_contacts=contacts_instance,
+                                    ID_privite=privite_instance,
+                                )
                                 Counterparty_privite.objects.create(
                                     ID_Counterparty=counterparty,
                                     ID_Privite_FaceCounter=Priv
@@ -449,22 +439,22 @@ def clientsadd(request):
                                 ID_Counterparty=counterparty,
                                 ID_Privite_FaceCounter=Priv
                             )
-                        
-                        # Связываем пользователя и контрагента (в любом случае)
-                        user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty=counterparty).exists()
-                        if not user_counter_link:
-                            User_Counterparty.objects.create(
-                                user=request.user,
-                                counterparty=counterparty
-                            )    
                 except Exception as e:
                     print(f"Ошибка при создании: {e}")
+                
                 if counterparty:
                     bank_instance = bform.save()
                     ob_instance = obform.save(commit=False)
                     ob_instance.ID_Counterparty = counterparty
                     ob_instance.ID_bank = bank_instance
                     ob_instance.save()
+
+                    user_counter_link = User_Counterparty.objects.filter(user=request.user, counterparty = counterparty).exists()
+                    if not user_counter_link:
+                        User_Counterparty.objects.create(
+                        user=request.user,
+                        counterparty=counterparty
+                    )
 
                 return redirect('clients')
     else:
@@ -558,6 +548,12 @@ def clientsid(request, id):
             ob_instance.ID_Counterparty = client
             ob_instance.ID_bank = bank_obj
             ob_instance.save()
+            if not client_bank_instance:
+                ob_instance = Counterparty_bank.objects.create(
+                    ID_Counterparty = client,
+                    ID_bank = bank_obj,
+                )
+
 
             return redirect('clients')
 
@@ -566,8 +562,10 @@ def clientsid(request, id):
         formCon = ContactsForm(instance=contacts_instance)
         bform = bank_rForm(instance=bank_instance)
         client_form = CounterpartyForm(instance=client)
-
-        obform = Counterparty_bankForm(instance=client_bank_instance)
+        if client_bank_instance:
+            obform = Counterparty_bankForm(instance=client_bank_instance)
+        else:
+            obform = Counterparty_bankForm(request.POST)
 
         if client.type == 'org':
             formORGINF = Org_infoForm(instance=info_instance)
